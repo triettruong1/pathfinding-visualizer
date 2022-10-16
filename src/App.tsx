@@ -5,8 +5,7 @@ import Grid from './Components/Grid';
 const START_POS = [5, 10];
 const END_POS = [25, 10]
 const App: React.FC = () => {
-  const mouseRef = useRef(false);
-
+  const [isClicking, setIsClicking] = useState(false);
 
   let board: number[][] = [];
   const populateBoard = () => {
@@ -20,13 +19,12 @@ const App: React.FC = () => {
   };
 
   populateBoard();
-
   const isType = (x: number, y: number) => {
     const [START_X, START_Y] = START_POS;
     const [END_X, END_Y] = END_POS;
-    let type: string = "";
-    (START_X == x && START_Y == y) ? type = "start" : "";
-    (END_X == x && END_Y == y) ? type = "end" : "";
+    let type = { isEnd: false, isStart: false };
+    (START_X == x && START_Y == y) ? type.isStart = true : '';
+    (END_X == x && END_Y == y) ? type.isEnd = true : '';
     return type;
   }
 
@@ -34,10 +32,12 @@ const App: React.FC = () => {
     <main className='App'>
       <div className="grid-container"
         onMouseDown={() => {
-          mouseRef.current = true;
+          setIsClicking(true);
+          console.log("clicking");
         }}
         onMouseUp={() => {
-          mouseRef.current = false;
+          console.log("stopped");
+          setIsClicking(false);
         }}
       >
         {board.map((row, rowIndex) => {
@@ -46,9 +46,9 @@ const App: React.FC = () => {
               {row.map((colIndex) => {
                 return <Grid
                   coordinate={[rowIndex, colIndex]}
-                  type={isType(rowIndex, colIndex)}
-                  mouseRef={mouseRef}
-                />;
+                  isClicking={isClicking}
+                  {...isType(rowIndex, colIndex)}
+                />
               })}
             </div>
           )

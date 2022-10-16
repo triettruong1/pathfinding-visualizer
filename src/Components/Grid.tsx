@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface GridProps {
     coordinate: number[],
-    type: string,
-    mouseRef: React.MutableRefObject<boolean>,
+    isClicking: boolean,
+    isStart: boolean,
+    isEnd: boolean,
     isVisited?: boolean,
     isShortestPath?: boolean,
     onMouseDown?: (coordinate: number[]) => void,
@@ -11,18 +12,24 @@ interface GridProps {
     onMouseUp?: () => void
 }
 
-const Grid: React.FC<GridProps> = ({ coordinate, type, mouseRef }) => {
+const Grid: React.FC<GridProps> = ({ coordinate, isClicking, isEnd, isStart }) => {
     const [x, y] = coordinate;
+    const [nodeClass, setNodeClass] = useState(isEnd ? 'end' : isStart ? 'start' : '');
 
-    return (<div
-        className={type.concat(' grid')}
-        id={x + " " + y}
+    const handleWallChange = () => {
+        if (isClicking)
+            nodeClass === 'end' || nodeClass === 'start' ? '' : setNodeClass('wall');
+    }
 
-        onMouseEnter={(event) => {
-            mouseRef ? event.target.classList.add("wall") : "";
-        }}
-    >
-    </div>)
+    return (
+        <div
+            className={'grid '.concat(nodeClass)}
+            id={x + " " + y}
+            onMouseOver={handleWallChange}
+            onMouseDown={handleWallChange}
+        >
+        </div>
+    )
 };
 
 export default Grid;
