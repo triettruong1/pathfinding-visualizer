@@ -1,35 +1,39 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 interface GridProps {
-    coordinate: number[],
-    isClicking: boolean,
-    isStart: boolean,
-    isEnd: boolean,
-    isVisited?: boolean,
-    isShortestPath?: boolean,
-    onMouseDown?: (coordinate: number[]) => void,
-    onMouseEnter?: (coordinate: number[]) => void,
-    onMouseUp?: () => void
+    coordinate: number[];
+    isClicking: boolean;
+    isStart: boolean;
+    isEnd: boolean;
+    isShortestPath?: boolean;
 }
 
-const Grid: React.FC<GridProps> = ({ coordinate, isClicking, isEnd, isStart }) => {
+const Grid = forwardRef<HTMLDivElement, GridProps>(({
+    coordinate,
+    isClicking,
+    isEnd,
+    isStart,
+}, ref) => {
     const [x, y] = coordinate;
-    const [nodeClass, setNodeClass] = useState(isEnd ? 'end' : isStart ? 'start' : '');
+    const [nodeClass, setNodeClass] = useState(
+        isEnd ? 'end' : isStart ? 'start' : ''
+    );
 
     const handleWallChange = () => {
         if (isClicking)
             nodeClass === 'end' || nodeClass === 'start' ? '' : setNodeClass('wall');
-    }
+    };
 
     return (
         <div
+            ref={ref}
             className={'grid '.concat(nodeClass)}
-            id={x + " " + y}
+            id={x + ' ' + y}
             onMouseOver={handleWallChange}
-            onMouseDown={handleWallChange}
+            onMouseUp={handleWallChange}
         >
         </div>
-    )
-};
+    );
+});
 
 export default Grid;
