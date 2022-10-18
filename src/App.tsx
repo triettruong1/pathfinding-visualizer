@@ -51,9 +51,7 @@ const App: React.FC = () => {
   const visualizeDijkstra = () => {
     const [START_X, START_Y] = START_POS
     const [END_X, END_Y] = END_POS;
-    console.log(board);
     updateBoard();
-    console.log(board);
     const startNode = board[START_X][START_Y];
     const endNode = board[END_X][END_Y];
     const visitedNodesInOrder: Node[] | undefined = dijkstra(board, startNode, endNode);
@@ -65,6 +63,11 @@ const App: React.FC = () => {
     if (!visitedNodesInOrder) return console.log("error");
     for (let step = 0; step < visitedNodesInOrder.length; step++) {
       const element = visitedNodesInOrder[step];
+      if (step === visitedNodesInOrder.length) {
+        setTimeout(() => {
+
+        }, step * 10)
+      }
       if (step === visitedNodesInOrder.length) return;
       setTimeout(() => {
         const { coordinate } = visitedNodesInOrder[step];
@@ -72,7 +75,18 @@ const App: React.FC = () => {
         const nodeEle = nodeRefs.current[node_X][node_Y];
         nodeEle.className = 'grid visited';
 
-      }, step * 10)
+      }, step * 5)
+    }
+  }
+
+  const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
+    for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
+      setTimeout(() => {
+        const { coordinate } = nodesInShortestPathOrder[step];
+        const [node_X, node_Y] = coordinate;
+        const nodeEle = nodeRefs.current[node_X][node_Y];
+        nodeEle.className = 'grid shortest-path';
+      }, 50 * step);
     }
   }
 

@@ -10,12 +10,13 @@ export function dijkstra(grid: Node[][], startNode: Node, finishNode: Node) {
         const closestNode = unvisitedNodes.shift();
         if (closestNode) {
             if (closestNode.isWall) continue;
+            if (closestNode.distance === 8888) return visitedNodes;
             closestNode.isVisited = true;
             visitedNodes.push(closestNode);
             updateUnvisitedNeighbors(closestNode, grid);
         }
-        if (closestNode === finishNode) return visitedNodes;
 
+        if (closestNode === finishNode) return visitedNodes;
 
     }
 }
