@@ -4,7 +4,7 @@ import './App.css';
 import Grid from './Components/Grid';
 
 const START_POS: number[] = [5, 10];
-const END_POS: number[] = [15, 10];
+const END_POS: number[] = [49, 10];
 
 export interface Node {
   coordinate: number[];
@@ -20,7 +20,7 @@ const App: React.FC = () => {
   let board: Node[][] = [];
 
   const populateBoard = () => {
-    for (let col = 0; col < 25; col++) {
+    for (let col = 0; col < 50; col++) {
       const currentCol: Node[] = [];
       for (let row = 0; row < 25; row++) {
         currentCol.push({
@@ -38,9 +38,22 @@ const App: React.FC = () => {
 
   populateBoard();
 
+  const updateBoard = () => {
+    for (let col = 0; col < 50; col++) {
+      for (let row = 0; row < 25; row++) {
+        if (nodeRefs.current) {
+          nodeRefs.current[col][row].className.includes('wall') ? board[col][row].isWall = true : ' ';
+        }
+      }
+    }
+  }
+
   const visualizeDijkstra = () => {
     const [START_X, START_Y] = START_POS
     const [END_X, END_Y] = END_POS;
+    console.log(board);
+    updateBoard();
+    console.log(board);
     const startNode = board[START_X][START_Y];
     const endNode = board[END_X][END_Y];
     const visitedNodesInOrder: Node[] | undefined = dijkstra(board, startNode, endNode);
@@ -54,8 +67,8 @@ const App: React.FC = () => {
       const element = visitedNodesInOrder[step];
       if (step === visitedNodesInOrder.length) return;
       setTimeout(() => {
-        const node = visitedNodesInOrder[step];
-        const [node_X, node_Y] = node.coordinate;
+        const { coordinate } = visitedNodesInOrder[step];
+        const [node_X, node_Y] = coordinate;
         const nodeEle = nodeRefs.current[node_X][node_Y];
         nodeEle.className = 'grid visited';
 
@@ -86,12 +99,13 @@ const App: React.FC = () => {
                 return (
                   <Grid
                     ref={(element: HTMLDivElement) => {
-                      nodeRefs.current[colIndex] = nodeRefs.current[colIndex] || [];
-                      nodeRefs.current[colIndex][rowIndex] = element;
+                      nodeRefs.current[rowIndex] = nodeRefs.current[rowIndex] || [];
+                      nodeRefs.current[rowIndex][colIndex] = element;
                     }}
                     coordinate={[rowIndex, colIndex]}
                     isClicking={isClicking}
                     {...isType(rowIndex, colIndex)}
+                    isWall={Node.isWall}
                   />
                 );
               })}

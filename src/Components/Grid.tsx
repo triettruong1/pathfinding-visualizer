@@ -5,6 +5,7 @@ interface GridProps {
     isClicking: boolean;
     isStart: boolean;
     isEnd: boolean;
+    isWall: boolean;
     isShortestPath?: boolean;
 }
 
@@ -13,10 +14,11 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
     isClicking,
     isEnd,
     isStart,
+    isWall
 }, ref) => {
     const [x, y] = coordinate;
     const [nodeClass, setNodeClass] = useState(
-        isEnd ? 'end' : isStart ? 'start' : ''
+        isEnd ? 'end' : isStart ? 'start' : isWall ? 'wall' : ''
     );
 
     const handleWallChange = () => {

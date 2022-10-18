@@ -9,6 +9,7 @@ export function dijkstra(grid: Node[][], startNode: Node, finishNode: Node) {
         sortNodesByDistance(unvisitedNodes);
         const closestNode = unvisitedNodes.shift();
         if (closestNode) {
+            if (closestNode.isWall) continue;
             closestNode.isVisited = true;
             visitedNodes.push(closestNode);
             updateUnvisitedNeighbors(closestNode, grid);
@@ -43,7 +44,7 @@ function updateUnvisitedNeighbors(node: Node, grid: Node[][]) {
 
 function getUnvisitedNeighbors(node: Node, grid: Node[][]) {
     const neighbors: Node[] = [];
-    const [col, row] = node.coordinate;
+    const [row, col] = node.coordinate;
     if (row > 0) neighbors.push(grid[row - 1][col]);
     if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
     if (col > 0) neighbors.push(grid[row][col - 1]);
