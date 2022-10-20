@@ -1,0 +1,22 @@
+.grid {
+    border: 1px solid rgba(19, 17, 17, 0.15);
+    width: 25px;
+    aspect-ratio: 1;
+}
+
+.start {
+    position: relative;
+}
+
+.start::after {
+    position: absolute;
+    content: "\#10060;";
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: green;
+}
+
+.end {
+    background: red;
+}

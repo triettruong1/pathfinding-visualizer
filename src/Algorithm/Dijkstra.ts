@@ -1,4 +1,4 @@
-import { Node } from '../App';
+import { Node } from '../Components/Board';
 
 export function dijkstra(grid: Node[][], startNode: Node, finishNode: Node) {
     const visitedNodes: Node[] = [];

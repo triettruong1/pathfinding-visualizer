@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-
+import './Grid.css';
 interface GridProps {
     coordinate: number[];
     isClicking: boolean;

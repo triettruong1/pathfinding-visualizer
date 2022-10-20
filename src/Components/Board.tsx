@@ -1,4 +1,5 @@
 import React from "react";
+import './Board.css';
 import { dijkstra, getNodesInShortestPathOrder } from '../Algorithm/Dijkstra';
 import { useState, useRef } from 'react';
 import Grid from './Grid';
@@ -7,7 +8,7 @@ import Grid from './Grid';
 
 const START_POS: number[] = [5, 10];
 const END_POS: number[] = [49, 10];
-const BOARD_COL_NUM: number = 75;
+const BOARD_COL_NUM: number = 76;
 const BOARD_ROW_NUM: number = 30;
 
 export interface Node {
@@ -76,7 +77,7 @@ export const Board: React.FC = () => {
         const { coordinate } = visitedNodesInOrder[step];
         const [node_X, node_Y] = coordinate;
         const nodeEle = nodeRefs.current[node_X][node_Y];
-        nodeEle.className = 'grid visited';
+        nodeEle.className = nodeEle.className.concat(' visited');
 
       }, step * 5)
     }
@@ -89,8 +90,8 @@ export const Board: React.FC = () => {
         const [node_X, node_Y] = coordinate;
         const nodeEle = nodeRefs.current[node_X][node_Y];
         console.log(nodeEle);
-        nodeEle.className = 'grid shortest-path';
-      }, 20 * step);
+        nodeEle.className = nodeEle.className.concat(' shortest-path');
+      }, 25 * step);
     }
   }
 
@@ -103,17 +104,19 @@ export const Board: React.FC = () => {
     return type;
   };
 
-  return <div className='grid-container' onMouseDown={() => setIsClicking(true)} onMouseUp={() => setIsClicking(false)} onMouseLeave={() => setIsClicking(false)}>
-    {board.map((nodeRow, rowIndex) => {
-      return <div key={rowIndex}>
-        {nodeRow.map((Node, colIndex) => {
-          return <Grid ref={(element: HTMLDivElement) => {
-            nodeRefs.current[rowIndex] = nodeRefs.current[rowIndex] || [];
-            nodeRefs.current[rowIndex][colIndex] = element;
-          }} coordinate={[rowIndex, colIndex]} isClicking={isClicking} {...isType(rowIndex, colIndex)} isWall={Node.isWall} />;
-        })}
-      </div>;
-    })}
-    <button onClick={visualizeDijkstra}>Animate</button>
-  </div>;
+  return (
+    <div className='grid-container' onMouseDown={() => setIsClicking(true)} onMouseUp={() => setIsClicking(false)} onMouseLeave={() => setIsClicking(false)}>
+      {board.map((nodeRow, rowIndex) => {
+        return <div key={rowIndex}>
+          {nodeRow.map((Node, colIndex) => {
+            return <Grid ref={(element: HTMLDivElement) => {
+              nodeRefs.current[rowIndex] = nodeRefs.current[rowIndex] || [];
+              nodeRefs.current[rowIndex][colIndex] = element;
+            }} coordinate={[rowIndex, colIndex]} isClicking={isClicking} {...isType(rowIndex, colIndex)} isWall={Node.isWall} />;
+          })}
+        </div>;
+      })}
+      <button onClick={visualizeDijkstra}>Animate</button>
+    </div>
+  );
 }
