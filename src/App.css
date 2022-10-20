@@ -41,6 +41,9 @@
 
 .shortest-path {
 	background: rgba(226, 241, 17, 0.863);
+	animation-name: shortestPathAnimation;
+	animation-duration: .3s;
+	animation-timing-function: linear;
 }
 
 @keyframes drawWallAnimation {
@@ -70,9 +73,6 @@
 	}
 }
 
-
-
-
 @keyframes visitedAnimation {
 	0% {
 		transform: scale(0.3);
@@ -95,5 +95,26 @@
 	100% {
 		transform: scale(1);
 		background-color: rgb(212, 167, 83);
+	}
+
+}
+
+@keyframes shortestPathAnimation {
+	0% {
+		background-color: rgb(212, 167, 83);
+		transform: scale(1.1);
+	}
+
+	25% {
+		transform: scale(1.5);
+	}
+
+	50% {
+		transform: scale(1.2);
+	}
+
+	100% {
+		background: rgba(226, 241, 17, 0.863);
+		transform: scale(1);
 	}
 }
