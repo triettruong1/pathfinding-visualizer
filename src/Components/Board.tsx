@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './Board.css';
-import { dijkstra, getNodesInShortestPathOrder } from '../Algorithm/Dijkstra';
+import { getNodesInShortestPathOrder } from '../Algorithm/Helpers';
+import dijkstra from "../Algorithm/Dijkstra";
+import BFS from "../Algorithm/BFS";
 import { useState, useRef } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Grid from './Grid';
 
 
@@ -23,9 +24,10 @@ export interface Node {
 export const Board: React.FC = () => {
   const [isClicking, updateMouseClick] = useState(false);
   const nodeRefs = useRef<(HTMLDivElement)[][]>([]);
-  let board: Node[][] = [];
+  const [board, setBoard] = useState<Node[][]>([]);
 
   const populateBoard = () => {
+    const newBoard: Node[][] = [];
     for (let col = 0; col < BOARD_COL_NUM; col++) {
       const currentCol: Node[] = [];
       for (let row = 0; row < BOARD_ROW_NUM; row++) {
@@ -37,12 +39,23 @@ export const Board: React.FC = () => {
           isVisited: false,
         });
       }
-      board.push(currentCol);
+      newBoard.push(currentCol);
     }
+    return newBoard;
   };
 
+  const resetBoard = () => {
+    for (let col = 0; col < BOARD_COL_NUM; col++) {
+      for (let row = 0; row < BOARD_ROW_NUM; row++) {
+        nodeRefs.current[col][row].classList.replace(nodeRefs.current[col][row].className, 'grid ');
+      }
+    }
+    setBoard(populateBoard())
+  }
 
-  populateBoard();
+  useEffect(() => {
+    setBoard(populateBoard());
+  }, [])
 
   const updateBoard = () => {
     for (let col = 0; col < BOARD_COL_NUM; col++) {
@@ -54,6 +67,17 @@ export const Board: React.FC = () => {
     }
   }
 
+  const visualizeBFS = () => {
+    const [START_X, START_Y] = START_POS
+    const [END_X, END_Y] = END_POS;
+    updateBoard();
+    const startNode = board[START_X][START_Y];
+    const endNode = board[END_X][END_Y];
+    const visitedNodes: Node[] = BFS(board, startNode, endNode);
+    const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+    animate(visitedNodes, shortestPathOfNodes);
+  }
+
   const visualizeDijkstra = () => {
     const [START_X, START_Y] = START_POS
     const [END_X, END_Y] = END_POS;
@@ -62,10 +86,10 @@ export const Board: React.FC = () => {
     const endNode = board[END_X][END_Y];
     const visitedNodesInOrder: Node[] | undefined = dijkstra(board, startNode, endNode);
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(endNode);
-    animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
+    animate(visitedNodesInOrder, nodesInShortestPathOrder);
   }
 
-  const animateDijkstra = (visitedNodesInOrder: Node[] | undefined, nodesInShortestPathOrder: Node[]) => {
+  const animate = (visitedNodesInOrder: Node[] | undefined, nodesInShortestPathOrder: Node[]) => {
     if (!visitedNodesInOrder) return console.log("error");
     for (let step = 0; step <= visitedNodesInOrder.length; step++) {
       if (step === visitedNodesInOrder.length) {
@@ -79,7 +103,6 @@ export const Board: React.FC = () => {
         const [node_X, node_Y] = coordinate;
         const nodeEle = nodeRefs.current[node_X][node_Y];
         nodeEle.className = nodeEle.className.concat(' visited');
-
       }, step * 5)
     }
   }
@@ -121,7 +144,8 @@ export const Board: React.FC = () => {
           })}
         </div>)
       })}
-      <button onClick={visualizeDijkstra}>Animate</button>
+      <button onClick={visualizeBFS}>Animate</button>
+      <button onClick={() => { setBoard(populateBoard()) }}>Reset</button>
     </div>
   );
 }

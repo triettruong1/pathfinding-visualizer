@@ -1,6 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import './Grid.css';
-import DraggableSymbol from './DraggableSymbol';
 interface GridProps {
     coordinate: number[];
     isClicking: boolean;
@@ -35,7 +34,6 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
                     className={'grid '.concat(nodeClass)}
                     id={x + ' ' + y}
                 >
-                    <DraggableSymbol symbolClass={nodeClass.concat('-symbol')} />
                 </div>
             ) : isEnd ?
                 (
@@ -44,7 +42,6 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
                         className={'grid '.concat(nodeClass)}
                         id={x + ' ' + y}
                     >
-                        <DraggableSymbol symbolClass={nodeClass.concat('-symbol')} />
                     </div>
                 ) :
                 (
