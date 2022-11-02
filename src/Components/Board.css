@@ -5,6 +5,12 @@
     flex-wrap: wrap;
 }
 
+.test-drop {
+    border: 3px solid black;
+    width: 200px;
+    aspect-ratio: 1;
+}
+
 .visited {
     animation-name: visitedAnimation;
     animation-duration: 1s;
@@ -89,6 +95,6 @@
 
     100% {
         border: 1px solid rgba(19, 17, 17, 0);
-        background: rgba(226, 241, 17, 0.55);
+        background: rgba(226, 241, 17, 0.719);
     }
 }

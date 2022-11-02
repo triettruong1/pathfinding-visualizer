@@ -2,6 +2,7 @@ import React from "react";
 import './Board.css';
 import { dijkstra, getNodesInShortestPathOrder } from '../Algorithm/Dijkstra';
 import { useState, useRef } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Grid from './Grid';
 
 
@@ -20,7 +21,7 @@ export interface Node {
 }
 
 export const Board: React.FC = () => {
-  const [isClicking, setIsClicking] = useState(false);
+  const [isClicking, updateMouseClick] = useState(false);
   const nodeRefs = useRef<(HTMLDivElement)[][]>([]);
   let board: Node[][] = [];
 
@@ -89,7 +90,6 @@ export const Board: React.FC = () => {
         const { coordinate } = nodesInShortestPathOrder[step];
         const [node_X, node_Y] = coordinate;
         const nodeEle = nodeRefs.current[node_X][node_Y];
-        console.log(nodeEle);
         nodeEle.className = nodeEle.className.concat(' shortest-path');
       }, 25 * step);
     }
@@ -105,18 +105,24 @@ export const Board: React.FC = () => {
   };
 
   return (
-    <div className='grid-container' onMouseDown={() => setIsClicking(true)} onMouseUp={() => setIsClicking(false)} onMouseLeave={() => setIsClicking(false)}>
+    <div className="grid-container"
+      onMouseDown={() => updateMouseClick(true)}
+      onMouseUp={() => updateMouseClick(false)}
+      onMouseLeave={() => updateMouseClick(false)}>
       {board.map((nodeRow, rowIndex) => {
-        return <div key={rowIndex}>
+        return (<div key={rowIndex}>
           {nodeRow.map((Node, colIndex) => {
-            return <Grid ref={(element: HTMLDivElement) => {
-              nodeRefs.current[rowIndex] = nodeRefs.current[rowIndex] || [];
-              nodeRefs.current[rowIndex][colIndex] = element;
-            }} coordinate={[rowIndex, colIndex]} isClicking={isClicking} {...isType(rowIndex, colIndex)} isWall={Node.isWall} />;
+            return (
+              <Grid ref={(element: HTMLDivElement) => {
+                nodeRefs.current[rowIndex] = nodeRefs.current[rowIndex] || [];
+                nodeRefs.current[rowIndex][colIndex] = element;
+              }} coordinate={[rowIndex, colIndex]} isClicking={isClicking} {...isType(rowIndex, colIndex)} isWall={Node.isWall} />
+            )
           })}
-        </div>;
+        </div>)
       })}
       <button onClick={visualizeDijkstra}>Animate</button>
     </div>
   );
 }
+

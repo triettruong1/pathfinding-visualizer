@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import './Grid.css';
+import DraggableSymbol from './DraggableSymbol';
 interface GridProps {
     coordinate: number[];
     isClicking: boolean;
@@ -15,7 +16,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
     isEnd,
     isStart,
     isWall
-}, ref) => {
+}, nodeRef) => {
     const [x, y] = coordinate;
     const [nodeClass, setNodeClass] = useState(
         isEnd ? 'end' : isStart ? 'start' : isWall ? 'wall' : ''
@@ -27,14 +28,35 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
     };
 
     return (
-        <div
-            ref={ref}
-            className={'grid '.concat(nodeClass)}
-            id={x + ' ' + y}
-            onMouseOver={handleWallChange}
-            onMouseUp={handleWallChange}
-        >
-        </div>
+        isStart ?
+            (
+                <div
+                    ref={nodeRef}
+                    className={'grid '.concat(nodeClass)}
+                    id={x + ' ' + y}
+                >
+                    <DraggableSymbol symbolClass={nodeClass.concat('-symbol')} />
+                </div>
+            ) : isEnd ?
+                (
+                    <div
+                        ref={nodeRef}
+                        className={'grid '.concat(nodeClass)}
+                        id={x + ' ' + y}
+                    >
+                        <DraggableSymbol symbolClass={nodeClass.concat('-symbol')} />
+                    </div>
+                ) :
+                (
+                    <div
+                        ref={nodeRef}
+                        className={'grid '.concat(nodeClass)}
+                        id={x + ' ' + y}
+                        onMouseOver={handleWallChange}
+                        onMouseUp={handleWallChange}
+                    >
+                    </div>
+                )
     );
 });
 
