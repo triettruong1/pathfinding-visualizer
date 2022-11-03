@@ -45,9 +45,13 @@ export const Board: React.FC = () => {
   };
 
   const resetBoard = () => {
+    updateBoard();
     for (let col = 0; col < BOARD_COL_NUM; col++) {
       for (let row = 0; row < BOARD_ROW_NUM; row++) {
-        nodeRefs.current[col][row].classList.replace(nodeRefs.current[col][row].className, 'grid ');
+        let node = nodeRefs.current[col][row];
+        if (node.classList.contains('visited')) node.classList.remove('visited');
+        if (node.classList.contains('wall')) node.classList.remove('wall');
+        if (node.classList.contains('shortest-path')) node.classList.remove('shortest-path');
       }
     }
     setBoard(populateBoard())
@@ -130,7 +134,10 @@ export const Board: React.FC = () => {
   return (
     <div className="grid-container"
       onMouseDown={() => updateMouseClick(true)}
-      onMouseUp={() => updateMouseClick(false)}
+      onMouseUp={() => {
+        updateMouseClick(false);
+        updateBoard();
+      }}
       onMouseLeave={() => updateMouseClick(false)}>
       {board.map((nodeRow, rowIndex) => {
         return (<div key={rowIndex}>
@@ -145,7 +152,7 @@ export const Board: React.FC = () => {
         </div>)
       })}
       <button onClick={visualizeBFS}>Animate</button>
-      <button onClick={() => { setBoard(populateBoard()) }}>Reset</button>
+      <button onClick={() => { resetBoard() }}>Reset</button>
     </div>
   );
 }

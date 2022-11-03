@@ -21,6 +21,10 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({
         isEnd ? 'end' : isStart ? 'start' : isWall ? 'wall' : ''
     );
 
+    useEffect(() => {
+        setNodeClass(isEnd ? 'end' : isStart ? 'start' : isWall ? 'wall' : '');
+    }, [isWall])
+
     const handleWallChange = () => {
         if (isClicking)
             nodeClass === 'end' || nodeClass === 'start' ? '' : setNodeClass('wall');
