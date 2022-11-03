@@ -6,7 +6,11 @@ import BFS from "../Algorithm/BFS";
 import { useState, useRef } from 'react';
 import Grid from './Grid';
 
-
+interface BoardProps {
+  shouldReset: boolean,
+  shouldAnimate: boolean,
+  algo: string
+}
 
 const START_POS: number[] = [5, 10];
 const END_POS: number[] = [49, 10];
@@ -21,7 +25,7 @@ export interface Node {
   isVisited: boolean;
 }
 
-export const Board: React.FC = () => {
+export const Board: React.FC<BoardProps> = ({ shouldReset, shouldAnimate, algo }) => {
   const [isClicking, updateMouseClick] = useState(false);
   const nodeRefs = useRef<(HTMLDivElement)[][]>([]);
   const [board, setBoard] = useState<Node[][]>([]);
@@ -58,6 +62,16 @@ export const Board: React.FC = () => {
   }
 
   useEffect(() => {
+    startAlgo(algo);
+  }, [shouldAnimate])
+
+  useEffect(() => {
+    if (shouldReset) {
+      resetBoard();
+    }
+  }, [shouldReset])
+
+  useEffect(() => {
     setBoard(populateBoard());
   }, [])
 
@@ -71,29 +85,31 @@ export const Board: React.FC = () => {
     }
   }
 
-  const visualizeBFS = () => {
+  const startAlgo = (algo: string) => {
     const [START_X, START_Y] = START_POS
     const [END_X, END_Y] = END_POS;
-    updateBoard();
     const startNode = board[START_X][START_Y];
     const endNode = board[END_X][END_Y];
-    const visitedNodes: Node[] = BFS(board, startNode, endNode);
+    console.log("doing algo: " + algo);
+    switch (algo) {
+      case "BFS":
+        visualizeAlgo(BFS, startNode, endNode);
+        break;
+      case "Dijkstra":
+        visualizeAlgo(dijkstra, startNode, endNode);
+      default:
+        console.log("error");
+    }
+  }
+
+  const visualizeAlgo = (algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[], startNode: Node, endNode: Node) => {
+    updateBoard();
+    const visitedNodes: Node[] = algoFunction(board, startNode, endNode);
     const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-    animate(visitedNodes, shortestPathOfNodes);
+    animateAlgo(visitedNodes, shortestPathOfNodes);
   }
 
-  const visualizeDijkstra = () => {
-    const [START_X, START_Y] = START_POS
-    const [END_X, END_Y] = END_POS;
-    updateBoard();
-    const startNode = board[START_X][START_Y];
-    const endNode = board[END_X][END_Y];
-    const visitedNodesInOrder: Node[] | undefined = dijkstra(board, startNode, endNode);
-    const nodesInShortestPathOrder = getNodesInShortestPathOrder(endNode);
-    animate(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
-
-  const animate = (visitedNodesInOrder: Node[] | undefined, nodesInShortestPathOrder: Node[]) => {
+  const animateAlgo = (visitedNodesInOrder: Node[] | undefined, nodesInShortestPathOrder: Node[]) => {
     if (!visitedNodesInOrder) return console.log("error");
     for (let step = 0; step <= visitedNodesInOrder.length; step++) {
       if (step === visitedNodesInOrder.length) {
@@ -151,8 +167,6 @@ export const Board: React.FC = () => {
           })}
         </div>)
       })}
-      <button onClick={visualizeBFS}>Animate</button>
-      <button onClick={() => { resetBoard() }}>Reset</button>
     </div>
   );
 }

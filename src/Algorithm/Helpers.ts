@@ -35,10 +35,10 @@ export function getUnvisitedNeighbors(node: Node, grid: Node[][]) {
 // Only works when called *after* the dijkstra method above.
 export function getNodesInShortestPathOrder(finishNode: Node) {
     const nodesInShortestPathOrder = [];
-    let currentNode: Node | null = finishNode;
+    let currentNode: Node = finishNode;
     while (currentNode !== null) {
         nodesInShortestPathOrder.unshift(currentNode);
-        currentNode = currentNode.previousNode;
+        currentNode = currentNode.previousNode!;
     }
     return nodesInShortestPathOrder;
 }
