@@ -28,14 +28,16 @@ const Header: React.FC<HeaderProps> = ({
 		});
 	};
 	return (
-		<header>
+		<header className='flex'>
 			<h1>Path-finding visualizer</h1>
-			<button onClick={beginAnimation}>Animate</button>
-			<button onClick={handleResetBoard}>Reset</button>
-			<select ref={selectRef}>
-				<option>BFS</option>
-				<option>Dijkstra</option>
-			</select>
+			<div className='controls flex'>
+				<button onClick={beginAnimation}>Animate</button>
+				<button onClick={handleResetBoard}>Reset</button>
+				<select ref={selectRef}>
+					<option>BFS</option>
+					<option>Dijkstra</option>
+				</select>
+			</div>
 		</header>
 	);
 };

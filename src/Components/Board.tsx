@@ -129,7 +129,7 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	const animateAlgo = (
-		visitedNodesInOrder: Node[] | undefined,
+		visitedNodesInOrder: Node[],
 		nodesInShortestPathOrder: Node[]
 	) => {
 		if (!visitedNodesInOrder) return console.log('error');

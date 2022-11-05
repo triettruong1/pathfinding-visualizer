@@ -1,5 +1,28 @@
 header {
-    background: #000;
-    color: #fff;
-    padding-block: 1em;
+	background: #000;
+	color: #fff;
+	padding: 1em 1em;
+	align-items: center;
+}
+
+.controls {
+	height: 50%;
+	margin-left: auto;
+}
+.controls > * {
+	margin-inline: 1em;
+}
+.controls > select {
+	padding-inline: 0.5em;
+	border: #fff solid 1px;
+	border-radius: 5px;
+	background: #000;
+	color: #fff;
+	text-align: center;
+}
+.controls > select:hover {
+	cursor: hover;
+	background: #f7f7f7;
+	color: #000;
+	border: #000 solid 1px;
 }
