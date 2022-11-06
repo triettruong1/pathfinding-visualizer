@@ -1,21 +1,9 @@
 .grid {
-    border: 1px solid rgba(19, 17, 17, 0.15);
-    width: 25px;
-    aspect-ratio: 1;
-}
-
-.start {
-    background: green;
-    position: relative;
-}
-
-.start-symbol::after {
-    margin-left: 4px;
-    position: absolute;
-    content: "\274C";
-    inset: 0;
+	border: 1px solid rgba(19, 17, 17, 0.15);
+	width: 25px;
+	aspect-ratio: 1;
 }
 
 .end {
-    background: red;
+	background: red;
 }
