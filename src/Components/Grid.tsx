@@ -3,7 +3,6 @@ import React, {
 	forwardRef,
 	MutableRefObject,
 	useEffect,
-	useRef,
 	useState,
 } from 'react';
 import './Grid.css';
@@ -60,8 +59,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 				ref={nodeRef}
 				className={'grid '.concat(nodeClass)}
 				id={coordinate.join(' ')}>
-				<Start />
-			</div>
+				<Start /> </div>
 		) : isEnd ? (
 			<div
 				ref={nodeRef}

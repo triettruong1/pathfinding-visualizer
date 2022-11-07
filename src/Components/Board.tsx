@@ -12,7 +12,6 @@ interface BoardProps {
 	algo: string;
 }
 
-const startPos: number[] = [5, 10];
 const END_POS: number[] = [49, 10];
 const BOARD_COL_NUM: number = 76;
 const BOARD_ROW_NUM: number = 30;
@@ -169,6 +168,7 @@ export const Board: React.FC<BoardProps> = ({
 			resetBoard();
 		}
 	}, [shouldReset]);
+
 	useEffect(() => {
 		setBoard(populateBoard());
 	}, []);
