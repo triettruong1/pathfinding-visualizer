@@ -5,6 +5,8 @@ import dijkstra from '../Algorithm/Dijkstra';
 import BFS from '../Algorithm/BFS';
 import { useState, useRef } from 'react';
 import Grid from './Grid';
+import Start from './Start';
+import End from './End';
 
 interface BoardProps {
 	shouldReset: boolean;
@@ -30,9 +32,9 @@ export const Board: React.FC<BoardProps> = ({
 	algo,
 }) => {
 	const [isClicking, updateMouseClick] = useState(false);
-	const [board, setBoard] = useState<Node[][]>([]);
-	const [startPos, setStartPos] = useState<number[]>([5, 10]);
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
+	const [board, setBoard] = useState<Node[][]>([]);
+  const [startPos, setStartPos] = useState<[number, number]>([5, 10]);
 
 	const populateBoard = () => {
 		const newBoard: Node[][] = [];
@@ -56,7 +58,7 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoard();
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
-				let node = nodeRefs.current![col][row];
+				let node = nodeRefs.current[col][row];
 				if (node.classList.contains('visited'))
 					node.classList.remove('visited');
 				if (node.classList.contains('wall'))
@@ -67,6 +69,22 @@ export const Board: React.FC<BoardProps> = ({
 		}
 		setBoard(populateBoard());
 	};
+
+	useEffect(() => {
+		if (shouldAnimate) {
+			startAlgo(algo);
+		}
+	}, [shouldAnimate]);
+
+	useEffect(() => {
+		if (shouldReset) {
+			resetBoard();
+		}
+	}, [shouldReset]);
+
+	useEffect(() => {
+		setBoard(populateBoard());
+	}, []);
 
 	const updateBoard = () => {
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
@@ -80,9 +98,9 @@ export const Board: React.FC<BoardProps> = ({
 		}
 	};
 
-	const handleChangeStartPosition = (newPos: [number, number]) => {
-		setStartPos(newPos);
-	};
+  const handleChangeStartPos = (coordinate : [number, number]) => {
+    setStartPos(coordinate);
+  }
 
 	const startAlgo = (algo: string) => {
 		const [START_X, START_Y] = startPos;
@@ -117,7 +135,7 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	const animateAlgo = (
-		visitedNodesInOrder: Node[],
+		visitedNodesInOrder: Node[] | undefined,
 		nodesInShortestPathOrder: Node[]
 	) => {
 		if (!visitedNodesInOrder) return console.log('error');
@@ -131,7 +149,7 @@ export const Board: React.FC<BoardProps> = ({
 			setTimeout(() => {
 				const { coordinate } = visitedNodesInOrder[step];
 				const [node_X, node_Y] = coordinate;
-				const nodeEle = nodeRefs.current![node_X][node_Y];
+				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' visited');
 			}, step * 5);
 		}
@@ -142,7 +160,7 @@ export const Board: React.FC<BoardProps> = ({
 			setTimeout(() => {
 				const { coordinate } = nodesInShortestPathOrder[step];
 				const [node_X, node_Y] = coordinate;
-				const nodeEle = nodeRefs.current![node_X][node_Y];
+				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
 			}, 25 * step);
 		}
@@ -151,27 +169,74 @@ export const Board: React.FC<BoardProps> = ({
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
 		const [END_X, END_Y] = END_POS;
-		let type = { isEnd: false, isStart: false };
-		START_X == x && START_Y == y ? (type.isStart = true) : '';
-		END_X == x && END_Y == y ? (type.isEnd = true) : '';
+		let type = '';
+		START_X == x && START_Y == y ? (type = 'isStart') : null;
+		END_X == x && END_Y == y ? (type = 'isEnd') : null;
+		board[x][y].isWall ? (type = 'isWall') : null;
 		return type;
 	};
 
-	useEffect(() => {
-		if (shouldAnimate) {
-			startAlgo(algo);
-		}
-	}, [shouldAnimate]);
+	const generateGridComponent = (x: number, y: number) => {
+		const componentType = isType(x, y);
 
-	useEffect(() => {
-		if (shouldReset) {
-			resetBoard();
-		}
-	}, [shouldReset]);
-
-	useEffect(() => {
-		setBoard(populateBoard());
-	}, []);
+		if (componentType === 'isStart') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+          className='grid'
+					isClicking={isClicking}
+          handleChangeStartPosition={handleChangeStartPos}
+          >
+					<Start />
+				</Grid>
+			);
+		} else if (componentType === 'isEnd') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+          className='grid'
+          handleChangeStartPosition={handleChangeStartPos}
+				>
+          <End/>
+        </Grid>
+			);
+		} else if (componentType === 'isWall') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+          className='grid'
+					isWall={true}
+          handleChangeStartPosition={handleChangeStartPos}
+				/>
+			);
+		} else
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+          className='grid'
+          handleChangeStartPosition={handleChangeStartPos}
+				/>
+			);
+	};
 
 	return (
 		<div
@@ -181,29 +246,13 @@ export const Board: React.FC<BoardProps> = ({
 				updateMouseClick(false);
 				updateBoard();
 			}}
-			onMouseLeave={() => updateMouseClick(false)}>
+			onMouseLeave={() => updateMouseClick(false)}
+      >
 			{board.map((nodeRow, rowIndex) => {
 				return (
 					<div key={rowIndex}>
 						{nodeRow.map((Node, colIndex) => {
-							return (
-								<Grid
-									key={colIndex}
-									ref={(element: HTMLDivElement) => {
-										nodeRefs.current![rowIndex] =
-											nodeRefs.current![rowIndex] || [];
-										nodeRefs.current![rowIndex][colIndex] =
-											element;
-									}}
-									coordinate={[rowIndex, colIndex]}
-									isClicking={isClicking}
-									{...isType(rowIndex, colIndex)}
-									isWall={Node.isWall}
-									handleChangeStartPosition={
-										handleChangeStartPosition
-									}
-								/>
-							);
+							return generateGridComponent(rowIndex, colIndex);
 						})}
 					</div>
 				);

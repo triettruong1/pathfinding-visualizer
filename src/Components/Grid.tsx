@@ -1,22 +1,21 @@
-import React, {
+import {
 	ForwardedRef,
 	forwardRef,
-	MutableRefObject,
+	ReactNode,
 	useEffect,
 	useState,
 } from 'react';
 import './Grid.css';
-import Start from './Start';
-import { FactoryOrInstance, useDrop } from 'react-dnd';
+import {useDrop} from 'react-dnd';
 
 interface GridProps {
 	coordinate: [number, number];
-	isClicking: boolean;
-	isStart: boolean;
-	isEnd: boolean;
-	isWall: boolean;
+	isClicking?: boolean;
+	isWall?: boolean;
+  className: string;
 	isShortestPath?: boolean;
 	handleChangeStartPosition: (coodinate: [number, number]) => void;
+  children?: ReactNode;
 }
 
 const Grid = forwardRef<HTMLDivElement, GridProps>(
@@ -24,65 +23,43 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		{
 			coordinate,
 			isClicking,
-			isEnd,
-			isStart,
+      className,
 			isWall,
 			handleChangeStartPosition,
+      children
 		},
-		nodeRef: ForwardedRef<HTMLDivElement>
+    nodeRef: any
 	) => {
-		const [, dropRef] = useDrop(() => ({
-			accept: 'start',
-			drop: () => handleDrop(),
-		}));
-		const [nodeClass, setNodeClass] = useState(
-			isEnd ? 'end' : isWall ? 'wall' : ''
-		);
-
-		useEffect(() => {
-			setNodeClass(isEnd ? 'end' : isWall ? 'wall' : '');
-		}, [isWall]);
-
+		const [nodeClass, setNodeClass] = useState(className);
+    const [{hover}, dropRef] = useDrop(() => ({
+      accept: "start",
+      drop: () => handleChangeStartPosition(coordinate),
+      collect: (monitor) => ({
+        hover: monitor.isOver()
+      })
+    }))
+  
 		const handleWallChange = () => {
 			if (isClicking)
-				nodeClass === 'end' || nodeClass === 'start'
-					? ''
-					: setNodeClass('wall');
+				 setNodeClass(prev => prev.concat(' wall'));
 		};
 
-		const handleDrop = () => {
-			handleChangeStartPosition(coordinate);
-		};
-
-		return isStart ? (
+		return (
 			<div
-				ref={nodeRef}
-				className={'grid '.concat(nodeClass)}
-				id={coordinate.join(' ')}>
-				<Start /> </div>
-		) : isEnd ? (
-			<div
-				ref={nodeRef}
-				className={'grid '.concat(nodeClass)}
-				id={coordinate.join(' ')}></div>
-		) : (
-			<div
-				ref={(element: HTMLDivElement) => {
-					if (typeof nodeRef === 'function') {
-						nodeRef(element);
-					} else if (nodeRef) {
-						(
-							nodeRef as MutableRefObject<HTMLDivElement | null>
-						).current = element;
-					}
-					dropRef(element);
-				}}
-				className={'grid '}
+				ref={(element) => {
+            if (typeof(nodeRef) === 'function'){
+              nodeRef(element);
+          } else if (nodeRef !== null){
+              nodeRef.current = element;
+          }
+          dropRef(element)
+        }}
+				className={nodeClass}
 				id={coordinate.join(' ')}
-				onMouseEnter={handleWallChange}
-				onMouseOver={handleWallChange}></div>
-		);
-	}
-);
+        onMouseLeave={handleWallChange}>
+        {children}
+			</div>
+      )
+})
 
 export default Grid;

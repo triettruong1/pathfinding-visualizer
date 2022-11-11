@@ -1,10 +1,10 @@
-import React from 'react';
-import './Start.css';
+import React from "react";
+
 import { useDrag } from 'react-dnd';
 
-const Start: React.FC = () => {
+const End: React.FC = () => {
   const [{isDragging}, dragRef] = useDrag(() => ({
-    type: "start",
+    type: "end",
     item: { location: location },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -13,4 +13,5 @@ const Start: React.FC = () => {
   
 	return <div ref={dragRef}className='start'></div>; };
 
-export default Start;
+export default End;
+
