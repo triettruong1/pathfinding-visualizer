@@ -189,6 +189,7 @@ export const Board: React.FC<BoardProps> = ({
 					coordinate={[x, y]}
           className='grid'
 					isClicking={isClicking}
+          updateMouseClick={updateMouseClick}
           handleChangeStartPosition={handleChangeStartPos}
           >
 					<Start />
@@ -203,6 +204,7 @@ export const Board: React.FC<BoardProps> = ({
 					}}
 					coordinate={[x, y]}
 					isClicking={isClicking}
+          updateMouseClick={updateMouseClick}
           className='grid'
           handleChangeStartPosition={handleChangeStartPos}
 				>
@@ -218,6 +220,7 @@ export const Board: React.FC<BoardProps> = ({
 					}}
 					coordinate={[x, y]}
 					isClicking={isClicking}
+          updateMouseClick={updateMouseClick}
           className='grid'
 					isWall={true}
           handleChangeStartPosition={handleChangeStartPos}
@@ -232,6 +235,7 @@ export const Board: React.FC<BoardProps> = ({
 					}}
 					coordinate={[x, y]}
 					isClicking={isClicking}
+          updateMouseClick={updateMouseClick}
           className='grid'
           handleChangeStartPosition={handleChangeStartPos}
 				/>

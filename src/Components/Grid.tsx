@@ -1,16 +1,17 @@
 import {
-	ForwardedRef,
 	forwardRef,
 	ReactNode,
-	useEffect,
+	SetStateAction,
 	useState,
 } from 'react';
 import './Grid.css';
 import {useDrop} from 'react-dnd';
+import React from 'react';
 
 interface GridProps {
 	coordinate: [number, number];
 	isClicking?: boolean;
+  updateMouseClick: React.Dispatch<SetStateAction<boolean>>,
 	isWall?: boolean;
   className: string;
 	isShortestPath?: boolean;
@@ -23,17 +24,20 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		{
 			coordinate,
 			isClicking,
+      updateMouseClick,
       className,
-			isWall,
 			handleChangeStartPosition,
-      children
+      children,
 		},
     nodeRef: any
 	) => {
 		const [nodeClass, setNodeClass] = useState(className);
     const [{hover}, dropRef] = useDrop(() => ({
       accept: "start",
-      drop: () => handleChangeStartPosition(coordinate),
+      drop: () => { 
+        updateMouseClick(prevState => !prevState)
+        handleChangeStartPosition(coordinate) 
+      },
       collect: (monitor) => ({
         hover: monitor.isOver()
       })
