@@ -60,6 +60,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
         }}
 				className={nodeClass}
 				id={coordinate.join(' ')}
+        //onMouseDown={(event) => event.preventDefault()}
         onMouseLeave={handleWallChange}>
         {children}
 			</div>

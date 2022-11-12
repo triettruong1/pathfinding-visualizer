@@ -4,4 +4,6 @@
 	border-top: 10px solid transparent;
 	border-left: 20px solid red;
 	border-bottom: 10px solid transparent;
+  position: absolute;
+  z-index: 1;
 }
