@@ -1,23 +1,19 @@
-import {
-	forwardRef,
-	ReactNode,
-	SetStateAction,
-	useState,
-} from 'react';
+import { forwardRef, ReactNode, SetStateAction, useState } from 'react';
 import './Grid.css';
-import {useDrop} from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import React from 'react';
+import useComponentVisible from '../Hooks/useComponentVisible';
 
 interface GridProps {
 	coordinate: [number, number];
 	isClicking?: boolean;
-  updateMouseClick: React.Dispatch<SetStateAction<boolean>>,
+	updateMouseClick: React.Dispatch<SetStateAction<boolean>>;
 	isWall?: boolean;
-  className: string;
+	className: string;
 	isShortestPath?: boolean;
 	handleChangeStartPosition?: (coodinate: [number, number]) => void;
-  handleChangeEndPosition?: (coordinate: [number, number]) => void;
-  children?: ReactNode;
+	handleChangeEndPosition?: (coordinate: [number, number]) => void;
+	children?: ReactNode;
 }
 
 const Grid = forwardRef<HTMLDivElement, GridProps>(
@@ -25,52 +21,75 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		{
 			coordinate,
 			isClicking,
-      updateMouseClick,
-      className,
+			updateMouseClick,
+			className,
 			handleChangeStartPosition,
-      handleChangeEndPosition,
-      children,
+			handleChangeEndPosition,
+			children,
 		},
-    nodeRef: any
+		nodeRef: any
 	) => {
 		const [nodeClass, setNodeClass] = useState(className);
-    const [{currentlyDraggingItem}, dropRef] = useDrop(() => ({
-      accept: ['start', 'end'],
-      drop: (item,monitor) => { 
-        updateMouseClick(prevState => !prevState)
-        if (handleChangeStartPosition && monitor.getItemType() === "start")
-          handleChangeStartPosition(coordinate)
-        if (handleChangeEndPosition && monitor.getItemType() === "end")
-          handleChangeEndPosition(coordinate)
-      },
-      collect: (monitor) => ({
-        currentlyDraggingItem: monitor.getItem()
-      })
-    }))
-  
+		const [{ currentlyDraggingItem, isHovering }, dropRef] = useDrop(
+			() => ({
+				accept: ['start', 'end'],
+				drop: (item, monitor) => {
+					updateMouseClick((prevState) => !prevState);
+					if (
+						handleChangeStartPosition &&
+						monitor.getItemType() === 'start'
+					)
+						handleChangeStartPosition(coordinate);
+					if (
+						handleChangeEndPosition &&
+						monitor.getItemType() === 'end'
+					)
+						handleChangeEndPosition(coordinate);
+				},
+				collect: (monitor) => ({
+					currentlyDraggingItem: monitor.getItem(),
+					isHovering: !!monitor.isOver(),
+				}),
+			})
+		);
+
+		const hoveringStyle = isHovering
+			? {
+					border: '1px solid blue',
+			  }
+			: {
+					border: '1px solid rgba(19, 17, 17, 0.15)',
+			  };
+
 		const handleWallChange = () => {
-			if (( isClicking && currentlyDraggingItem === null ) && ( isClicking && !!!children ))
-				 setNodeClass(prev => prev.concat(' wall'));
+			if (isClicking && !!!currentlyDraggingItem && !!!children) //Draw will if there is no item being dragged
+				setNodeClass((prev) => prev.concat(' wall')); //and there is no children inside
 		};
 
 		return (
 			<div
-        onDragStart={() => {return false;}} //Disable accidentally dragging the grid
-        onDragEnd={() => {return false;}}
-				ref={(element) => {
-            if (typeof(nodeRef) === 'function'){
-              nodeRef(element);
-          } else if (nodeRef !== null){
-              nodeRef.current = element;
-          }
-          dropRef(element)
-        }}
-				className={nodeClass}
+				onDragStart={() => {
+					return false;
+				}} //Disable accidentally dragging the grid
+				onDragEnd={() => {
+					return false;
+				}}
+				onMouseOver={handleWallChange}
 				id={coordinate.join(' ')}
-        onMouseOver={handleWallChange}>
-        {children}
+				className={nodeClass}
+				style={hoveringStyle}
+				ref={(element) => {
+					if (typeof nodeRef === 'function') {
+						nodeRef(element); 
+          } else if (nodeRef !== null) {
+						nodeRef.current = element;
+					}
+					dropRef(element);
+				}}>
+				{children}
 			</div>
-      )
-})
+		);
+	}
+);
 
 export default Grid;
