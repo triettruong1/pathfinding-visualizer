@@ -3,7 +3,7 @@
 	width: 25px;
 	aspect-ratio: 1;
   position: relative;
-  z-index: 2;
+  z-index: 0;
 }
 
 .end {

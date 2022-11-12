@@ -5,8 +5,7 @@ import { useDrag } from 'react-dnd';
 const End: React.FC = () => {
   const [{isDragging}, dragRef] = useDrag(() => ({
     type: "end",
-    item: { location: location },
-    collect: (monitor) => ({
+      item: { type:  "end"}, collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }))

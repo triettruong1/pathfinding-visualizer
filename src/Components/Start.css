@@ -5,5 +5,5 @@
 	border-left: 20px solid red;
 	border-bottom: 10px solid transparent;
   position: absolute;
-  z-index: 1;
+  z-index: 3;
 }

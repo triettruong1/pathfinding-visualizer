@@ -14,7 +14,6 @@ interface BoardProps {
 	algo: string;
 }
 
-const END_POS: number[] = [49, 10];
 const BOARD_COL_NUM: number = 76;
 const BOARD_ROW_NUM: number = 30;
 
@@ -35,6 +34,7 @@ export const Board: React.FC<BoardProps> = ({
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 	const [board, setBoard] = useState<Node[][]>([]);
   const [startPos, setStartPos] = useState<[number, number]>([5, 10]);
+  const [endPos, setEndPos] = useState<[number, number]>([49,10]);
 
 	const populateBoard = () => {
 		const newBoard: Node[][] = [];
@@ -101,10 +101,13 @@ export const Board: React.FC<BoardProps> = ({
   const handleChangeStartPos = (coordinate : [number, number]) => {
     setStartPos(coordinate);
   }
+  const handleChangeEndPos = (coordinate : [number, number]) => {
+    setEndPos(coordinate);
+  }
 
 	const startAlgo = (algo: string) => {
 		const [START_X, START_Y] = startPos;
-		const [END_X, END_Y] = END_POS;
+		const [END_X, END_Y] = endPos;
 		const startNode = board[START_X][START_Y];
 		const endNode = board[END_X][END_Y];
 		switch (algo) {
@@ -168,7 +171,7 @@ export const Board: React.FC<BoardProps> = ({
 
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
-		const [END_X, END_Y] = END_POS;
+		const [END_X, END_Y] = endPos;
 		let type = '';
 		START_X == x && START_Y == y ? (type = 'isStart') : null;
 		END_X == x && END_Y == y ? (type = 'isEnd') : null;
@@ -190,7 +193,6 @@ export const Board: React.FC<BoardProps> = ({
           className='grid'
 					isClicking={isClicking}
           updateMouseClick={updateMouseClick}
-          handleChangeStartPosition={handleChangeStartPos}
           >
 					<Start />
 				</Grid>
@@ -206,7 +208,6 @@ export const Board: React.FC<BoardProps> = ({
 					isClicking={isClicking}
           updateMouseClick={updateMouseClick}
           className='grid'
-          handleChangeStartPosition={handleChangeStartPos}
 				>
           <End/>
         </Grid>
@@ -223,7 +224,6 @@ export const Board: React.FC<BoardProps> = ({
           updateMouseClick={updateMouseClick}
           className='grid'
 					isWall={true}
-          handleChangeStartPosition={handleChangeStartPos}
 				/>
 			);
 		} else
@@ -238,6 +238,7 @@ export const Board: React.FC<BoardProps> = ({
           updateMouseClick={updateMouseClick}
           className='grid'
           handleChangeStartPosition={handleChangeStartPos}
+          handleChangeEndPosition={handleChangeEndPos}
 				/>
 			);
 	};
@@ -254,7 +255,10 @@ export const Board: React.FC<BoardProps> = ({
       >
 			{board.map((nodeRow, rowIndex) => {
 				return (
-					<div key={rowIndex}>
+					<div 
+            onDragStart={() => {return false;}} //Disable accidentally dragging the row
+            onDragEnd={() => {return false;}}
+            key={rowIndex}>
 						{nodeRow.map((Node, colIndex) => {
 							return generateGridComponent(rowIndex, colIndex);
 						})}

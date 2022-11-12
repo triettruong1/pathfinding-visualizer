@@ -15,7 +15,8 @@ interface GridProps {
 	isWall?: boolean;
   className: string;
 	isShortestPath?: boolean;
-	handleChangeStartPosition: (coodinate: [number, number]) => void;
+	handleChangeStartPosition?: (coodinate: [number, number]) => void;
+  handleChangeEndPosition?: (coordinate: [number, number]) => void;
   children?: ReactNode;
 }
 
@@ -27,29 +28,35 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
       updateMouseClick,
       className,
 			handleChangeStartPosition,
+      handleChangeEndPosition,
       children,
 		},
     nodeRef: any
 	) => {
 		const [nodeClass, setNodeClass] = useState(className);
-    const [{hover}, dropRef] = useDrop(() => ({
-      accept: "start",
-      drop: () => { 
+    const [{currentlyDraggingItem}, dropRef] = useDrop(() => ({
+      accept: ['start', 'end'],
+      drop: (item,monitor) => { 
         updateMouseClick(prevState => !prevState)
-        handleChangeStartPosition(coordinate) 
+        if (handleChangeStartPosition && monitor.getItemType() === "start")
+          handleChangeStartPosition(coordinate)
+        if (handleChangeEndPosition && monitor.getItemType() === "end")
+          handleChangeEndPosition(coordinate)
       },
       collect: (monitor) => ({
-        hover: monitor.isOver()
+        currentlyDraggingItem: monitor.getItem()
       })
     }))
   
 		const handleWallChange = () => {
-			if (isClicking)
+			if (( isClicking && currentlyDraggingItem === null ) && ( isClicking && !!!children ))
 				 setNodeClass(prev => prev.concat(' wall'));
 		};
 
 		return (
 			<div
+        onDragStart={() => {return false;}} //Disable accidentally dragging the grid
+        onDragEnd={() => {return false;}}
 				ref={(element) => {
             if (typeof(nodeRef) === 'function'){
               nodeRef(element);
@@ -60,8 +67,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
         }}
 				className={nodeClass}
 				id={coordinate.join(' ')}
-        //onMouseDown={(event) => event.preventDefault()}
-        onMouseLeave={handleWallChange}>
+        onMouseOver={handleWallChange}>
         {children}
 			</div>
       )
