@@ -102,24 +102,47 @@ select {
 
 /*styles*/
 
+select {
+	padding-inline: 0.5em;
+  background: var(--accent-color);
+	border: var(--invert-accent) solid 2px;
+	color: var(--invert-accent);
+	border-radius: 3px;
+	text-align: center;
+  transition: transform 250ms;
+}
+select:hover {
+	cursor: hover;
+	background: var(--invert-accent);
+	color: var(--accent-color);
+  transform: scale(0.9);
+}
+
 button {
-	background: transparent;
-	color: #fff;
-	border: solid 1px #fff;
+	background: var(--accent-color);
+	color: var(--invert-accent);
+	border: solid 2px var(--invert-accent);
 	padding: 0.5em 1em;
 	transition: transform 250ms cubic-bezier(0.45, 0.3, 0.26, 1.67),
 		background 250ms ease;
-	border-radius: 5px;
+	border-radius: 3px;
 }
-button:hover {
+button:not(.disabled):hover {
+  outline: none;
 	cursor: pointer;
-	background: #f7f7f7;
-	color: #000;
-	border: #000 solid 1px;
+	background: var(--invert-accent);
+	color: var(--accent-color);
 }
-button:active {
-	transform: scale(0.9);
+button:not(.disabled):active {
+  transform: scale(0.9);
 }
 .flex {
 	display: flex;
 }
+
+.disabled {
+border: #3d3c39 solid 1px;
+background: #3d3c39;
+color: #61605d;
+}
+

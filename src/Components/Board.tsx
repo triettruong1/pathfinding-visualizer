@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder } from '../Algorithm/Helpers';
 import dijkstra from '../Algorithm/Dijkstra';
@@ -11,6 +11,7 @@ import End from './End';
 interface BoardProps {
 	shouldReset: boolean;
 	shouldAnimate: boolean;
+  setHasAnimated: Dispatch<SetStateAction<boolean>>;
 	algo: string;
 }
 
@@ -28,6 +29,7 @@ export interface Node {
 export const Board: React.FC<BoardProps> = ({
 	shouldReset,
 	shouldAnimate,
+  setHasAnimated,
 	algo,
 }) => {
 	const [isClicking, updateMouseClick] = useState(false);
@@ -55,7 +57,6 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	const resetBoard = () => {
-		updateBoard();
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				let node = nodeRefs.current[col][row];
@@ -67,6 +68,7 @@ export const Board: React.FC<BoardProps> = ({
 					node.classList.remove('shortest-path');
 			}
 		}
+    setHasAnimated(false);
 		setBoard(populateBoard());
 	};
 
@@ -110,6 +112,7 @@ export const Board: React.FC<BoardProps> = ({
 		const [END_X, END_Y] = endPos;
 		const startNode = board[START_X][START_Y];
 		const endNode = board[END_X][END_Y];
+    setHasAnimated(true);
 		switch (algo) {
 			case 'BFS':
 				visualizeAlgo(BFS, startNode, endNode);
@@ -156,6 +159,7 @@ export const Board: React.FC<BoardProps> = ({
 				nodeEle.className = nodeEle.className.concat(' visited');
 			}, step * 5);
 		}
+    setHasAnimated(true);
 	};
 
 	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
