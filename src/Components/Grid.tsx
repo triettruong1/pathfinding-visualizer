@@ -2,7 +2,6 @@ import { forwardRef, ReactNode, SetStateAction, useState } from 'react';
 import './Grid.css';
 import { useDrop } from 'react-dnd';
 import React from 'react';
-import useComponentVisible from '../Hooks/useComponentVisible';
 
 interface GridProps {
 	coordinate: [number, number];
@@ -32,8 +31,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		const [nodeClass, setNodeClass] = useState(className);
 		const [{ currentlyDraggingItem, isHovering }, dropRef] = useDrop(
 			() => ({
-				accept: ['start', 'end'],
-				drop: (item, monitor) => {
+				accept: ['start', 'end'], drop: (item, monitor) => {
 					updateMouseClick((prevState) => !prevState);
 					if (
 						handleChangeStartPosition &&
@@ -55,11 +53,11 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 
 		const hoveringStyle = isHovering
 			? {
-					border: '1px solid blue',
-			  }
+				border: '1px solid blue',
+			}
 			: {
-					border: '1px solid rgba(19, 17, 17, 0.15)',
-			  };
+				border: '1px solid rgba(19, 17, 17, 0.15)',
+			};
 
 		const handleWallChange = () => {
 			if (isClicking && !!!currentlyDraggingItem && !!!children) //Draw will if there is no item being dragged
@@ -80,8 +78,8 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 				style={hoveringStyle}
 				ref={(element) => {
 					if (typeof nodeRef === 'function') {
-						nodeRef(element); 
-          } else if (nodeRef !== null) {
+						nodeRef(element);
+					} else if (nodeRef !== null) {
 						nodeRef.current = element;
 					}
 					dropRef(element);

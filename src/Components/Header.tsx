@@ -5,14 +5,14 @@ interface HeaderProps {
 	setAnimate: Dispatch<SetStateAction<boolean>>;
 	setResetBoard: Dispatch<SetStateAction<boolean>>;
 	setAlgo: Dispatch<SetStateAction<string>>;
-  hasAnimated: boolean;
+	hasAnimated: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
 	setAnimate,
 	setResetBoard,
 	setAlgo,
-  hasAnimated
+	hasAnimated
 }) => {
 	const selectRef = useRef<HTMLSelectElement>(null);
 	const beginAnimation = () => {
