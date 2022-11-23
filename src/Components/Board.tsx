@@ -9,274 +9,256 @@ import Start from './Start';
 import End from './End';
 
 interface BoardProps {
-  shouldReset: boolean;
-  shouldAnimate: boolean;
-  setHasAnimated: Dispatch<SetStateAction<boolean>>;
-  hasAnimated: boolean;
-  algo: string;
+	shouldReset: boolean;
+	shouldAnimate: boolean;
+	setHasAnimated: Dispatch<SetStateAction<boolean>>;
+	hasAnimated: boolean;
+	algo: string;
 }
 
 const BOARD_COL_NUM: number = 78;
 const BOARD_ROW_NUM: number = 36;
 
 export interface Node {
-  coordinate: number[];
-  distance: number;
-  previousNode: Node | null;
-  isWall: boolean;
-  isVisited: boolean;
+	coordinate: number[];
+	distance: number;
+	previousNode: Node | null;
+	isWall: boolean;
+	isVisited: boolean;
 }
 
 export const Board: React.FC<BoardProps> = ({
-  shouldReset,
-  shouldAnimate,
-  setHasAnimated,
-  hasAnimated,
-  algo,
+	shouldReset,
+	shouldAnimate,
+	setHasAnimated,
+	hasAnimated,
+	algo,
 }) => {
-  const [isClicking, updateMouseClick] = useState(false);
-  const nodeRefs = useRef<HTMLDivElement[][]>([]);
-  const [board, setBoard] = useState<Node[][]>([]);
-  const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
-  const [endPos, setEndPos] = useState<[number, number]>([50, 10]);
+	const [isClicking, updateMouseClick] = useState(false);
+	const nodeRefs = useRef<HTMLDivElement[][]>([]);
+	const [board, setBoard] = useState<Node[][]>([]);
+	const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
+	const [endPos, setEndPos] = useState<[number, number]>([50, 10]);
 
-  const populateBoard = () => {
-    const newBoard: Node[][] = [];
-    for (let col = 0; col < BOARD_COL_NUM; col++) {
-      const currentCol: Node[] = [];
-      for (let row = 0; row < BOARD_ROW_NUM; row++) {
-        currentCol.push({
-          coordinate: [col, row],
-          distance: 8888,
-          previousNode: null,
-          isWall: false,
-          isVisited: false,
-        });
-      }
-      newBoard.push(currentCol);
-    }
-    return newBoard;
-  };
+	const populateBoard = () => {
+		const newBoard: Node[][] = [];
+		for (let col = 0; col < BOARD_COL_NUM; col++) {
+			const currentCol: Node[] = [];
+			for (let row = 0; row < BOARD_ROW_NUM; row++) {
+				currentCol.push({
+					coordinate: [col, row],
+					distance: 8888,
+					previousNode: null,
+					isWall: false,
+					isVisited: false,
+				});
+			}
+			newBoard.push(currentCol);
+		}
+		return newBoard;
+	};
 
-  const resetBoard = () => {
-    for (let col = 0; col < BOARD_COL_NUM; col++) {
-      for (let row = 0; row < BOARD_ROW_NUM; row++) {
-        let node = nodeRefs.current[col][row];
-        if (node.classList.contains('visited'))
-          node.classList.remove('visited');
-        if (node.classList.contains('wall'))
-          node.classList.remove('wall');
-        if (node.classList.contains('shortest-path'))
-          node.classList.remove('shortest-path');
-      }
-    }
-    setHasAnimated(false);
-    setBoard(populateBoard());
-  };
+	const resetBoard = () => {
+		for (let col = 0; col < BOARD_COL_NUM; col++) {
+			for (let row = 0; row < BOARD_ROW_NUM; row++) {
+				let node = nodeRefs.current[col][row];
+				if (node.classList.contains('visited')) node.classList.remove('visited');
+				if (node.classList.contains('wall')) node.classList.remove('wall');
+				if (node.classList.contains('shortest-path'))
+					node.classList.remove('shortest-path');
+			}
+		}
+		setHasAnimated(false);
+		setBoard(populateBoard());
+	};
 
-  //update wall state of grid
-  const updateBoardWallState = () => {
-    for (let col = 0; col < BOARD_COL_NUM; col++) {
-      for (let row = 0; row < BOARD_ROW_NUM; row++) {
-        if (nodeRefs.current) {
-          nodeRefs.current[col][row].className.includes('wall')
-            ? (board[col][row].isWall = true)
-            : ' ';
-        }
-      }
-    }
-  };
+	//update wall state of grid
+	const updateBoardWallState = () => {
+		for (let col = 0; col < BOARD_COL_NUM; col++) {
+			for (let row = 0; row < BOARD_ROW_NUM; row++) {
+				if (nodeRefs.current) {
+					nodeRefs.current[col][row].className.includes('wall')
+						? (board[col][row].isWall = true)
+						: ' ';
+				}
+			}
+		}
+	};
 
-  useEffect(() => {
-    if (shouldAnimate) {
-      startAlgo(algo);
-    }
-  }, [shouldAnimate]);
+	useEffect(() => {
+		if (shouldAnimate) {
+			startAlgo(algo);
+		}
+	}, [shouldAnimate]);
 
-  useEffect(() => {
-    if (shouldReset) {
-      resetBoard();
-    }
-  }, [shouldReset]);
+	useEffect(() => {
+		if (shouldReset) {
+			resetBoard();
+		}
+	}, [shouldReset]);
 
-  useEffect(() => {
-    setBoard(populateBoard());
-  }, []);
+	useEffect(() => {
+		setBoard(populateBoard());
+	}, []);
 
+	const handleChangeStartPos = (coordinate: [number, number]) => {
+		setStartPos(coordinate);
+	};
+	const handleChangeEndPos = (coordinate: [number, number]) => {
+		setEndPos(coordinate);
+	};
 
-  const handleChangeStartPos = (coordinate: [number, number]) => {
-    setStartPos(coordinate);
-  }
-  const handleChangeEndPos = (coordinate: [number, number]) => {
-    setEndPos(coordinate);
-  }
+	const startAlgo = (algo: string) => {
+		const [START_X, START_Y] = startPos;
+		const [END_X, END_Y] = endPos;
+		const startNode = board[START_X][START_Y];
+		const endNode = board[END_X][END_Y];
+		setHasAnimated(true);
+		switch (algo) {
+			case 'BFS':
+				visualizeAlgo(BFS, startNode, endNode);
+				break;
+			case 'Dijkstra':
+				visualizeAlgo(dijkstra, startNode, endNode);
+			default:
+				console.log('error');
+		}
+	};
 
-  const startAlgo = (algo: string) => {
-    const [START_X, START_Y] = startPos;
-    const [END_X, END_Y] = endPos;
-    const startNode = board[START_X][START_Y];
-    const endNode = board[END_X][END_Y];
-    setHasAnimated(true);
-    switch (algo) {
-      case 'BFS':
-        visualizeAlgo(BFS, startNode, endNode);
-        break;
-      case 'Dijkstra':
-        visualizeAlgo(dijkstra, startNode, endNode);
-      default:
-        console.log('error');
-    }
-  };
+	const visualizeAlgo = (
+		algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[],
+		startNode: Node,
+		endNode: Node
+	) => {
+		updateBoardWallState();
+		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
+		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+		animateAlgo(visitedNodesInOrder, shortestPathOfNodes);
+	};
 
-  const visualizeAlgo = (
-    algoFunction: (
-      board: Node[][],
-      startNode: Node,
-      endNode: Node
-    ) => Node[],
-    startNode: Node,
-    endNode: Node
-  ) => {
-    updateBoardWallState();
-    const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
-    const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-    animateAlgo(visitedNodesInOrder, shortestPathOfNodes);
-  };
+	const animateAlgo = (visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
+		if (!visitedNodesInOrder) return console.log('error');
+		for (let step = 0; step <= visitedNodesInOrder.length; step++) {
+			if (step === visitedNodesInOrder.length) {
+				setTimeout(() => {
+					animateShortestPath(nodesInShortestPathOrder);
+				}, step * 5);
+				return;
+			}
+			setTimeout(() => {
+				const { coordinate } = visitedNodesInOrder[step];
+				const [node_X, node_Y] = coordinate;
+				const nodeEle = nodeRefs.current[node_X][node_Y];
+				nodeEle.className = nodeEle.className.concat(' visited');
+			}, step * 5);
+		}
+		setHasAnimated(true);
+	};
 
-  const animateAlgo = (
-    visitedNodesInOrder: Node[],
-    nodesInShortestPathOrder: Node[]
-  ) => {
-    if (!visitedNodesInOrder) return console.log('error');
-    for (let step = 0; step <= visitedNodesInOrder.length; step++) {
-      if (step === visitedNodesInOrder.length) {
-        setTimeout(() => {
-          animateShortestPath(nodesInShortestPathOrder);
-        }, step * 5);
-        return;
-      }
-      setTimeout(() => {
-        const { coordinate } = visitedNodesInOrder[step];
-        const [node_X, node_Y] = coordinate;
-        const nodeEle = nodeRefs.current[node_X][node_Y];
-        nodeEle.className = nodeEle.className.concat(' visited');
-      }, step * 5);
-    }
-    setHasAnimated(true);
-  };
+	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
+		for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
+			setTimeout(() => {
+				const { coordinate } = nodesInShortestPathOrder[step];
+				const [node_X, node_Y] = coordinate;
+				const nodeEle = nodeRefs.current[node_X][node_Y];
+				nodeEle.className = nodeEle.className.concat(' shortest-path');
+			}, 25 * step);
+		}
+	};
 
-  const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
-    for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
-      setTimeout(() => {
-        const { coordinate } = nodesInShortestPathOrder[step];
-        const [node_X, node_Y] = coordinate;
-        const nodeEle = nodeRefs.current[node_X][node_Y];
-        nodeEle.className = nodeEle.className.concat(' shortest-path');
-      }, 25 * step);
-    }
-  };
+	const instantGeneratePath = () => {};
 
-  const instantGeneratePath = () => {
+	const isType = (x: number, y: number) => {
+		const [START_X, START_Y] = startPos;
+		const [END_X, END_Y] = endPos;
+		let type = '';
+		START_X == x && START_Y == y ? (type = 'isStart') : null;
+		END_X == x && END_Y == y ? (type = 'isEnd') : null;
+		board[x][y].isWall ? (type = 'isWall') : null;
+		return type;
+	};
 
-  }
+	const generateGridComponent = (x: number, y: number) => {
+		const componentType = isType(x, y);
 
-  const isType = (x: number, y: number) => {
-    const [START_X, START_Y] = startPos;
-    const [END_X, END_Y] = endPos;
-    let type = '';
-    START_X == x && START_Y == y ? (type = 'isStart') : null;
-    END_X == x && END_Y == y ? (type = 'isEnd') : null;
-    board[x][y].isWall ? (type = 'isWall') : null;
-    return type;
-  };
+		if (componentType === 'isStart') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					className='grid'
+					isClicking={isClicking}
+					updateMouseClick={updateMouseClick}>
+					<Start />
+				</Grid>
+			);
+		} else if (componentType === 'isEnd') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+					updateMouseClick={updateMouseClick}
+					className='grid'>
+					<End />
+				</Grid>
+			);
+		} else if (componentType === 'isWall') {
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+					updateMouseClick={updateMouseClick}
+					className='grid'
+					isWall={true}
+				/>
+			);
+		} else
+			return (
+				<Grid
+					ref={(element: HTMLDivElement) => {
+						nodeRefs.current[x] = nodeRefs.current[x] || [];
+						nodeRefs.current[x][y] = element;
+					}}
+					coordinate={[x, y]}
+					isClicking={isClicking}
+					updateMouseClick={updateMouseClick}
+					className='grid'
+					handleChangeStartPosition={handleChangeStartPos}
+					handleChangeEndPosition={handleChangeEndPos}
+				/>
+			);
+	};
 
-  const generateGridComponent = (x: number, y: number) => {
-    const componentType = isType(x, y);
-
-    if (componentType === 'isStart') {
-      return (
-        <Grid
-          ref={(element: HTMLDivElement) => {
-            nodeRefs.current[x] = nodeRefs.current[x] || [];
-            nodeRefs.current[x][y] = element;
-          }}
-          coordinate={[x, y]}
-          className='grid'
-          isClicking={isClicking}
-          updateMouseClick={updateMouseClick}
-        >
-          <Start />
-        </Grid>
-      );
-    } else if (componentType === 'isEnd') {
-      return (
-        <Grid
-          ref={(element: HTMLDivElement) => {
-            nodeRefs.current[x] = nodeRefs.current[x] || [];
-            nodeRefs.current[x][y] = element;
-          }}
-          coordinate={[x, y]}
-          isClicking={isClicking}
-          updateMouseClick={updateMouseClick}
-          className='grid'
-        >
-          <End />
-        </Grid>
-      );
-    } else if (componentType === 'isWall') {
-      return (
-        <Grid
-          ref={(element: HTMLDivElement) => {
-            nodeRefs.current[x] = nodeRefs.current[x] || [];
-            nodeRefs.current[x][y] = element;
-          }}
-          coordinate={[x, y]}
-          isClicking={isClicking}
-          updateMouseClick={updateMouseClick}
-          className='grid'
-          isWall={true}
-        />
-      );
-    } else
-      return (
-        <Grid
-          ref={(element: HTMLDivElement) => {
-            nodeRefs.current[x] = nodeRefs.current[x] || [];
-            nodeRefs.current[x][y] = element;
-          }}
-          coordinate={[x, y]}
-          isClicking={isClicking}
-          updateMouseClick={updateMouseClick}
-          className='grid'
-          handleChangeStartPosition={handleChangeStartPos}
-          handleChangeEndPosition={handleChangeEndPos}
-        />
-      );
-  };
-
-  return (
-    <div
-      className='grid-container'
-      onMouseDown={() => updateMouseClick(true)}
-      onMouseUp={() => {
-        updateMouseClick(false);
-        updateBoardWallState();
-      }}
-      onMouseLeave={() => updateMouseClick(false)}
-    >
-      {board.map((nodeRow, rowIndex) => {
-        return (
-          <div
-            className='row'
-            onDragStart={() => { return false; }} //Disable accidentally dragging the row
-            onDragEnd={() => { return false; }}
-            key={rowIndex}>
-            {nodeRow.map((Node, colIndex) => {
-              return generateGridComponent(rowIndex, colIndex);
-            })}
-          </div>
-        );
-      })}
-    </div>
-  );
+	return (
+		<div
+			className='grid-container'
+			onMouseDown={() => updateMouseClick(true)}
+			onMouseUp={() => {
+				updateMouseClick(false);
+				updateBoardWallState();
+			}}
+			onMouseLeave={() => updateMouseClick(false)}
+			draggable='false'>
+			{board.map((nodeRow, rowIndex) => {
+				return (
+					<div className='row' draggable='false' key={rowIndex}>
+						{nodeRow.map((Node, colIndex) => {
+							return generateGridComponent(rowIndex, colIndex);
+						})}
+					</div>
+				);
+			})}
+		</div>
+	);
 };

@@ -3,7 +3,7 @@ import { useDrag } from 'react-dnd';
 import startPinSVG from '../Assets/startPin.svg';
 
 const Start: React.FC = () => {
-	const [{ isDragging }, dragRef] = useDrag(() => ({
+	const [{ }, dragRef] = useDrag(() => ({
 		type: 'start',
 		item: { type: 'start' },
 		collect: (monitor) => ({
@@ -12,8 +12,8 @@ const Start: React.FC = () => {
 	}));
 
 	return (
-		<div ref={dragRef} className='svg-icon'>
-			<img src={startPinSVG} />
+		<div draggable="false" ref={dragRef} className='svg-icon'>
+			<img draggable="false" src={startPinSVG} />
 		</div>
 	);
 };

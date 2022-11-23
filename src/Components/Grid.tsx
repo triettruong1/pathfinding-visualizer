@@ -23,55 +23,38 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 			updateMouseClick,
 			className,
 			handleChangeStartPosition,
-			handleChangeEndPosition,
-			children,
+			handleChangeEndPosition, children,
 		},
 		nodeRef: any
 	) => {
 		const [nodeClass, setNodeClass] = useState(className);
-		const [{ currentlyDraggingItem, isHovering }, dropRef] = useDrop(
-			() => ({
-				accept: ['start', 'end'], drop: (item, monitor) => {
-					updateMouseClick((prevState) => !prevState);
-					if (
-						handleChangeStartPosition &&
-						monitor.getItemType() === 'start'
-					)
-						handleChangeStartPosition(coordinate);
-					if (
-						handleChangeEndPosition &&
-						monitor.getItemType() === 'end'
-					)
-						handleChangeEndPosition(coordinate);
-				},
-				collect: (monitor) => ({
-					currentlyDraggingItem: monitor.getItem(),
-					isHovering: !!monitor.isOver(),
-				}),
-			})
-		);
+		const [{ isCurrentlyDragging, isHovering }, dropRef] = useDrop(() => ({
+			accept: ['start', 'end'],
+			drop: (item, monitor) => {
+				if (handleChangeStartPosition && monitor.getItemType() === 'start')
+					handleChangeStartPosition(coordinate);
+				if (handleChangeEndPosition && monitor.getItemType() === 'end')
+					handleChangeEndPosition(coordinate);
+        updateMouseClick(prevState => !prevState);
+			},
+			collect: (monitor) => ({
+				isHovering: !!monitor.isOver(),
+        isCurrentlyDragging: !!monitor.getItem(),
+			}),
+		}));
 
 		const hoveringStyle = isHovering
-			? {
-				border: '1px solid blue',
-			}
-			: {
-				border: '1px solid rgba(19, 17, 17, 0.15)',
-			};
+			? { border: '1px solid blue' }
+			: { border: '1px solid rgba(19, 17, 17, 0.15)' };
 
 		const handleWallChange = () => {
-			if (isClicking && !!!currentlyDraggingItem && !!!children) //Draw will if there is no item being dragged
-				setNodeClass((prev) => prev.concat(' wall')); //and there is no children inside
+			if (isClicking && !!!children && !!!isCurrentlyDragging)
+				setNodeClass((prev) => prev.concat(' wall')); 
 		};
 
 		return (
 			<div
-				onDragStart={() => {
-					return false;
-				}} //Disable accidentally dragging the grid
-				onDragEnd={() => {
-					return false;
-				}}
+        draggable="false"
 				onMouseOver={handleWallChange}
 				id={coordinate.join(' ')}
 				className={nodeClass}

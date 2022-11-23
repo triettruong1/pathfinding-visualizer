@@ -5,7 +5,7 @@
 .App {
 	height: 100vh;
 	width: 100vw;
-  overflow: hidden;
+	overflow: hidden;
 }
 
 /*CSS RESET*/
@@ -105,18 +105,18 @@ select {
 
 select {
 	padding-inline: 0.5em;
-  background: var(--accent-color);
+	background: var(--accent-color);
 	border: var(--invert-accent) solid 2px;
 	color: var(--invert-accent);
 	border-radius: 3px;
 	text-align: center;
-  transition: transform 250ms;
+	transition: transform 250ms;
 }
 select:hover {
 	cursor: hover;
 	background: var(--invert-accent);
 	color: var(--accent-color);
-  transform: scale(0.9);
+	transform: scale(0.9);
 }
 
 button {
@@ -124,29 +124,32 @@ button {
 	color: var(--invert-accent);
 	border: solid 2px var(--invert-accent);
 	padding: 0.5em 1em;
-	transition: transform 250ms cubic-bezier(0.45, 0.3, 0.26, 1.67),
-		background 250ms ease;
+	transition: transform 250ms cubic-bezier(0.45, 0.3, 0.26, 1.67), background 250ms ease;
 	border-radius: 3px;
 }
 button:not(.disabled):hover {
-  outline: none;
+	outline: none;
 	cursor: pointer;
 	background: var(--invert-accent);
 	color: var(--accent-color);
 }
 button:not(.disabled):active {
-  transform: scale(0.9);
+	transform: scale(0.9);
 }
 .flex {
 	display: flex;
 }
 
 .disabled {
-border: #3d3c39 solid 1px;
-background: #3d3c39;
-color: #61605d;
+	border: #3d3c39 solid 1px;
+	background: #3d3c39;
+	color: #61605d;
 }
 
 .svg-icon {
-  object-fit: fit;
+  transition: transform 250ms ease;
+	object-fit: fit;
+}
+.svg-icon:active {
+  transform: scale(0.8);
 }
