@@ -22,6 +22,7 @@ const App: React.FC = () => {
         <Board
           shouldAnimate={shouldAnimate}
           shouldReset={shouldReset}
+          hasAnimated={hasAnimated}
           setHasAnimated={setHasAnimated}
           algo={algo}
           />

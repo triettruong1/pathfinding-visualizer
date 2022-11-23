@@ -5,6 +5,7 @@
 .App {
 	height: 100vh;
 	width: 100vw;
+  overflow: hidden;
 }
 
 /*CSS RESET*/
@@ -146,3 +147,6 @@ background: #3d3c39;
 color: #61605d;
 }
 
+.svg-icon {
+  object-fit: fit;
+}

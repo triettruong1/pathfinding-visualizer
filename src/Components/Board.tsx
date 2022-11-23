@@ -12,11 +12,12 @@ interface BoardProps {
 	shouldReset: boolean;
 	shouldAnimate: boolean;
   setHasAnimated: Dispatch<SetStateAction<boolean>>;
+  hasAnimated: boolean;
 	algo: string;
 }
 
-const BOARD_COL_NUM: number = 76;
-const BOARD_ROW_NUM: number = 30;
+const BOARD_COL_NUM: number = 78;
+const BOARD_ROW_NUM: number = 36;
 
 export interface Node {
 	coordinate: number[];
@@ -30,13 +31,14 @@ export const Board: React.FC<BoardProps> = ({
 	shouldReset,
 	shouldAnimate,
   setHasAnimated,
+  hasAnimated,
 	algo,
 }) => {
 	const [isClicking, updateMouseClick] = useState(false);
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 	const [board, setBoard] = useState<Node[][]>([]);
-  const [startPos, setStartPos] = useState<[number, number]>([5, 10]);
-  const [endPos, setEndPos] = useState<[number, number]>([49,10]);
+  const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
+  const [endPos, setEndPos] = useState<[number, number]>([50,10]);
 
 	const populateBoard = () => {
 		const newBoard: Node[][] = [];
@@ -72,6 +74,19 @@ export const Board: React.FC<BoardProps> = ({
 		setBoard(populateBoard());
 	};
 
+  //update wall state of grid
+	const updateBoardWallState = () => {
+		for (let col = 0; col < BOARD_COL_NUM; col++) {
+			for (let row = 0; row < BOARD_ROW_NUM; row++) {
+				if (nodeRefs.current) {
+					nodeRefs.current[col][row].className.includes('wall')
+						? (board[col][row].isWall = true)
+						: ' ';
+				}
+			}
+		}
+	};
+
 	useEffect(() => {
 		if (shouldAnimate) {
 			startAlgo(algo);
@@ -88,17 +103,6 @@ export const Board: React.FC<BoardProps> = ({
 		setBoard(populateBoard());
 	}, []);
 
-	const updateBoard = () => {
-		for (let col = 0; col < BOARD_COL_NUM; col++) {
-			for (let row = 0; row < BOARD_ROW_NUM; row++) {
-				if (nodeRefs.current) {
-					nodeRefs.current[col][row].className.includes('wall')
-						? (board[col][row].isWall = true)
-						: ' ';
-				}
-			}
-		}
-	};
 
   const handleChangeStartPos = (coordinate : [number, number]) => {
     setStartPos(coordinate);
@@ -133,15 +137,14 @@ export const Board: React.FC<BoardProps> = ({
 		startNode: Node,
 		endNode: Node
 	) => {
-		updateBoard();
-		const visitedNodes: Node[] = algoFunction(board, startNode, endNode);
-		const shortestPathOfNodes: Node[] =
-			getNodesInShortestPathOrder(endNode);
-		animateAlgo(visitedNodes, shortestPathOfNodes);
+		updateBoardWallState();
+		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
+		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+		animateAlgo(visitedNodesInOrder, shortestPathOfNodes);
 	};
 
 	const animateAlgo = (
-		visitedNodesInOrder: Node[] | undefined,
+		visitedNodesInOrder: Node[],
 		nodesInShortestPathOrder: Node[]
 	) => {
 		if (!visitedNodesInOrder) return console.log('error');
@@ -172,6 +175,10 @@ export const Board: React.FC<BoardProps> = ({
 			}, 25 * step);
 		}
 	};
+
+  const instantGeneratePath = () => {
+
+  }
 
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
@@ -253,13 +260,14 @@ export const Board: React.FC<BoardProps> = ({
 			onMouseDown={() => updateMouseClick(true)}
 			onMouseUp={() => {
 				updateMouseClick(false);
-				updateBoard();
+				updateBoardWallState();
 			}}
 			onMouseLeave={() => updateMouseClick(false)}
       >
 			{board.map((nodeRow, rowIndex) => {
 				return (
 					<div 
+            className='row'
             onDragStart={() => {return false;}} //Disable accidentally dragging the row
             onDragEnd={() => {return false;}}
             key={rowIndex}>
