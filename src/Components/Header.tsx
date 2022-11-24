@@ -2,24 +2,32 @@ import './Header.css';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
 
 interface HeaderProps {
+	setAnimate: Dispatch<SetStateAction<boolean>>;
+	setResetBoard: Dispatch<SetStateAction<boolean>>;
+	setAlgo: Dispatch<SetStateAction<string>>;
 	hasAnimated: boolean;
-  animateButtonTrigger: (algo: string) => void;
-  resetButtonTrigger: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
-	hasAnimated,
-  animateButtonTrigger,
-  resetButtonTrigger,
+	setAnimate,
+	setResetBoard,
+	setAlgo,
+	hasAnimated
 }) => {
 	const selectRef = useRef<HTMLSelectElement>(null);
 	const beginAnimation = () => {
-    const algo = selectRef.current!.value;
-    animateButtonTrigger(algo);
+		setAlgo(selectRef.current!.value);
+		setAnimate((prevState) => !prevState);
+		setTimeout(() => {
+			setAnimate((prevState) => !prevState);
+		});
 	};
 
 	const handleResetBoard = () => {
-    resetButtonTrigger();
+		setResetBoard((prevState) => !prevState);
+		setTimeout(() => {
+			setResetBoard((prevState) => !prevState);
+		});
 	};
 
 	return (

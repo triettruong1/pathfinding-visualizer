@@ -9,10 +9,11 @@ import Start from './Start';
 import End from './End';
 
 interface BoardProps {
-  animateReceiverCreator: (handler: (algo: string) => void) => void;
-  resetReceiverCreator: (handler: () => void) => void;
+	shouldReset: boolean;
+	shouldAnimate: boolean;
 	setHasAnimated: Dispatch<SetStateAction<boolean>>;
 	hasAnimated: boolean;
+	algo: string;
 }
 
 const BOARD_COL_NUM: number = 78;
@@ -27,10 +28,11 @@ export interface Node {
 }
 
 export const Board: React.FC<BoardProps> = ({
-  animateReceiverCreator,
-  resetReceiverCreator,
+	shouldReset,
+	shouldAnimate,
 	setHasAnimated,
 	hasAnimated,
+	algo,
 }) => {
 	const [isClicking, updateMouseClick] = useState(false);
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
@@ -84,6 +86,18 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	useEffect(() => {
+		if (shouldAnimate) {
+			startAlgo(algo);
+		}
+	}, [shouldAnimate]);
+
+	useEffect(() => {
+		if (shouldReset) {
+			resetBoard();
+		}
+	}, [shouldReset]);
+
+	useEffect(() => {
 		setBoard(populateBoard());
 	}, []);
 
@@ -99,6 +113,7 @@ export const Board: React.FC<BoardProps> = ({
 		const [END_X, END_Y] = endPos;
 		const startNode = board[START_X][START_Y];
 		const endNode = board[END_X][END_Y];
+		setHasAnimated(true);
 		switch (algo) {
 			case 'BFS':
 				visualizeAlgo(BFS, startNode, endNode);
@@ -109,7 +124,6 @@ export const Board: React.FC<BoardProps> = ({
 				console.log('error');
 		}
 	};
-
 
 	const visualizeAlgo = (
 		algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[],
@@ -151,9 +165,6 @@ export const Board: React.FC<BoardProps> = ({
 			}, 25 * step);
 		}
 	};
-
-  animateReceiverCreator(startAlgo);
-  resetReceiverCreator(resetBoard);
 
 	const instantGeneratePath = () => {};
 

@@ -6,37 +6,25 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App: React.FC = () => {
+  const [shouldAnimate, setAnimate] = useState(false);
+  const [shouldReset, setReset] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
-
-  let animateReceiver = (algo: string) => {}
-  const animateButtonTrigger = (algo: string) => {
-    animateReceiver(algo);  
-  }
-  const animateReceiverCreator = (handler: (algo: string) => void) => {
-    animateReceiver = handler;
-  }
-
-  let resetReceiver = () => {}
-  const resetButtonTrigger = () => {
-    resetReceiver();
-  }
-  const resetReceiverCreator = (handler: () => void) => {
-    resetReceiver = handler;
-  }
-
+  const [algo, setAlgo] = useState('');
   return (
     <DndProvider backend={HTML5Backend}>
       <main className='App'>
         <Header
+          setAnimate={setAnimate}
+          setResetBoard={setReset}
+          setAlgo={setAlgo}
           hasAnimated={hasAnimated}
-          animateButtonTrigger={animateButtonTrigger}
-          resetButtonTrigger={resetButtonTrigger}
         />
         <Board
-          animateReceiverCreator={animateReceiverCreator}
-          resetReceiverCreator={resetReceiverCreator}
+          shouldAnimate={shouldAnimate}
+          shouldReset={shouldReset}
           hasAnimated={hasAnimated}
           setHasAnimated={setHasAnimated}
+          algo={algo}
         />
       </main>
     </DndProvider>
