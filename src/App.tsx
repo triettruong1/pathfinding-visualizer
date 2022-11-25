@@ -1,34 +1,29 @@
 import { Board } from './Components/Board';
 import Header from './Components/Header';
 import './App.css';
-import { useState } from 'react';
+import { createContext, MutableRefObject, useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+export interface FuncRef {
+	startAlgo: (algo: string) => void;
+}
+
 const App: React.FC = () => {
-  const [shouldAnimate, setAnimate] = useState(false);
-  const [shouldReset, setReset] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const [algo, setAlgo] = useState('');
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <main className='App'>
-        <Header
-          setAnimate={setAnimate}
-          setResetBoard={setReset}
-          setAlgo={setAlgo}
-          hasAnimated={hasAnimated}
-        />
-        <Board
-          shouldAnimate={shouldAnimate}
-          shouldReset={shouldReset}
-          hasAnimated={hasAnimated}
-          setHasAnimated={setHasAnimated}
-          algo={algo}
-        />
-      </main>
-    </DndProvider>
-  );
+	const [hasAnimated, setHasAnimated] = useState(false);
+	const context: MutableRefObject<FuncRef | null> = useRef(null);
+
+	return (
+		<DndProvider backend={HTML5Backend}>
+			<main className='App'>
+				<Header
+					hasAnimated={hasAnimated}
+					startAlgo={context.current?.startAlgo!}
+				/>
+				<Board hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} ref={context} />
+			</main>
+		</DndProvider>
+	);
 };
 
 export default App;

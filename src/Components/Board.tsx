@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import React, { Dispatch, forwardRef, SetStateAction, useEffect, useImperativeHandle } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder } from '../Algorithm/Helpers';
 import dijkstra from '../Algorithm/Dijkstra';
@@ -7,13 +7,11 @@ import { useState, useRef } from 'react';
 import Grid from './Grid';
 import Start from './Start';
 import End from './End';
+import { FuncRef } from '../App';
 
 interface BoardProps {
-	shouldReset: boolean;
-	shouldAnimate: boolean;
 	setHasAnimated: Dispatch<SetStateAction<boolean>>;
 	hasAnimated: boolean;
-	algo: string;
 }
 
 const BOARD_COL_NUM: number = 78;
@@ -27,13 +25,7 @@ export interface Node {
 	isVisited: boolean;
 }
 
-export const Board: React.FC<BoardProps> = ({
-	shouldReset,
-	shouldAnimate,
-	setHasAnimated,
-	hasAnimated,
-	algo,
-}) => {
+export const Board = forwardRef<FuncRef, BoardProps>(({ setHasAnimated, hasAnimated }, animateFunctionRef) => {
 	const [isClicking, updateMouseClick] = useState(false);
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 	const [board, setBoard] = useState<Node[][]>([]);
@@ -86,18 +78,6 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	useEffect(() => {
-		if (shouldAnimate) {
-			startAlgo(algo);
-		}
-	}, [shouldAnimate]);
-
-	useEffect(() => {
-		if (shouldReset) {
-			resetBoard();
-		}
-	}, [shouldReset]);
-
-	useEffect(() => {
 		setBoard(populateBoard());
 	}, []);
 
@@ -108,12 +88,32 @@ export const Board: React.FC<BoardProps> = ({
 		setEndPos(coordinate);
 	};
 
+	useImperativeHandle(animateFunctionRef, () => ({
+		startAlgo(algo: string) {
+			const [START_X, START_Y] = startPos;
+			const [END_X, END_Y] = endPos;
+			const startNode = board[START_X][START_Y];
+			const endNode = board[END_X][END_Y];
+			console.log("hello");
+			switch (algo) {
+				case 'BFS':
+					visualizeAlgo(BFS, startNode, endNode);
+					break;
+				case 'Dijkstra':
+					visualizeAlgo(dijkstra, startNode, endNode);
+				default:
+					console.log('error');
+			}
+		}
+
+	}));
+
 	const startAlgo = (algo: string) => {
 		const [START_X, START_Y] = startPos;
 		const [END_X, END_Y] = endPos;
 		const startNode = board[START_X][START_Y];
 		const endNode = board[END_X][END_Y];
-		setHasAnimated(true);
+		console.log("hello");
 		switch (algo) {
 			case 'BFS':
 				visualizeAlgo(BFS, startNode, endNode);
@@ -123,18 +123,16 @@ export const Board: React.FC<BoardProps> = ({
 			default:
 				console.log('error');
 		}
-	};
+	}
 
-	const visualizeAlgo = (
-		algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[],
+	function visualizeAlgo(algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[],
 		startNode: Node,
-		endNode: Node
-	) => {
+		endNode: Node) {
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
 		animateAlgo(visitedNodesInOrder, shortestPathOfNodes);
-	};
+	}
 
 	const animateAlgo = (visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
 		if (!visitedNodesInOrder) return console.log('error');
@@ -152,10 +150,10 @@ export const Board: React.FC<BoardProps> = ({
 				nodeEle.className = nodeEle.className.concat(' visited');
 			}, step * 5);
 		}
-		setHasAnimated(true);
 	};
 
 	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
+		const delay = nodesInShortestPathOrder.length * 25;
 		for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
 			setTimeout(() => {
 				const { coordinate } = nodesInShortestPathOrder[step];
@@ -164,9 +162,12 @@ export const Board: React.FC<BoardProps> = ({
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
 			}, 25 * step);
 		}
+		setTimeout(() => {
+			setHasAnimated(true);
+		}, delay + 100);
 	};
 
-	const instantGeneratePath = () => {};
+	const instantGeneratePath = () => { };
 
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
@@ -180,7 +181,6 @@ export const Board: React.FC<BoardProps> = ({
 
 	const generateGridComponent = (x: number, y: number) => {
 		const componentType = isType(x, y);
-
 		if (componentType === 'isStart') {
 			return (
 				<Grid
@@ -219,7 +219,7 @@ export const Board: React.FC<BoardProps> = ({
 					coordinate={[x, y]}
 					isClicking={isClicking}
 					updateMouseClick={updateMouseClick}
-					className='grid'
+					className='grid wall'
 					isWall={true}
 				/>
 			);
@@ -261,4 +261,4 @@ export const Board: React.FC<BoardProps> = ({
 			})}
 		</div>
 	);
-};
+});
