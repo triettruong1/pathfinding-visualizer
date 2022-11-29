@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode, SetStateAction, useState } from 'react';
+import { forwardRef, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import './Grid.css';
 import { useDrop } from 'react-dnd';
 import React from 'react';
@@ -7,9 +7,7 @@ interface GridProps {
 	coordinate: [number, number];
 	isClicking?: boolean;
 	updateMouseClick: React.Dispatch<SetStateAction<boolean>>;
-	isWall?: boolean;
 	className: string;
-	isShortestPath?: boolean;
 	handleChangeStartPosition?: (coodinate: [number, number]) => void;
 	handleChangeEndPosition?: (coordinate: [number, number]) => void;
 	children?: ReactNode;
@@ -23,7 +21,8 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 			updateMouseClick,
 			className,
 			handleChangeStartPosition,
-			handleChangeEndPosition, children,
+			handleChangeEndPosition,
+			children,
 		},
 		nodeRef: any
 	) => {
@@ -35,11 +34,10 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 					handleChangeStartPosition(coordinate);
 				if (handleChangeEndPosition && monitor.getItemType() === 'end')
 					handleChangeEndPosition(coordinate);
-				updateMouseClick(prevState => !prevState);
+				updateMouseClick((prevState) => !prevState);
 			},
 			canDrop: (_, monitor) => {
-				console.log(nodeClass.includes('wall'));
-				return !nodeClass.includes('wall') 
+				return !nodeClass.includes('wall');
 			},
 			collect: (monitor) => ({
 				isHovering: !!monitor.isOver(),
@@ -51,16 +49,21 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 			: { border: '1px solid rgba(19, 17, 17, 0.15)' };
 
 		const handleWallChange = () => {
-			if (isClicking && !!!children)
+			if (isClicking && !!!children) {
 				setNodeClass((prev) => {
 					if (prev.includes('wall')) return prev;
 					return prev.concat(' wall');
 				});
+			}
 		};
+
+		useEffect(() => {
+			setNodeClass(className);
+		}, [className]);
 
 		return (
 			<div
-				draggable="false"
+				draggable='false'
 				onMouseOver={handleWallChange}
 				id={coordinate.join(' ')}
 				className={nodeClass}

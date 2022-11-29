@@ -11,7 +11,6 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated, resetBoard }) =
 	const selectRef = useRef<HTMLSelectElement>(null);
 	const beginAnimation = () => {
 		let algo = selectRef.current!.value;
-		console.log(startAlgo);
 		startAlgo(algo);
 	};
 
@@ -26,11 +25,7 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated, resetBoard }) =
 				<button
 					disabled={hasAnimated}
 					className={hasAnimated ? 'disabled' : ''}
-					onClick={() => {
-						let algo = selectRef.current!.value;
-						console.log(startAlgo);
-						startAlgo(algo);
-					}}>
+					onClick={beginAnimation}>
 					Animate
 				</button>
 				<button onClick={handleResetBoard}>Reset</button>
