@@ -2,19 +2,21 @@ import './Header.css';
 import React, { useRef } from 'react';
 
 interface HeaderProps {
-  startAlgo: (algo: string) => void;
+	startAlgo: (algo: string) => void;
+	resetBoard: () => void;
 	hasAnimated: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated }) => {
+const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated, resetBoard }) => {
 	const selectRef = useRef<HTMLSelectElement>(null);
 	const beginAnimation = () => {
-    let algo = selectRef.current!.value;
-    console.log(startAlgo);
-    startAlgo(algo);
+		let algo = selectRef.current!.value;
+		console.log(startAlgo);
+		startAlgo(algo);
 	};
 
 	const handleResetBoard = () => {
+		resetBoard();
 	};
 
 	return (
@@ -25,10 +27,10 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated }) => {
 					disabled={hasAnimated}
 					className={hasAnimated ? 'disabled' : ''}
 					onClick={() => {
-            let algo = selectRef.current!.value;
-            console.log(startAlgo);
-            startAlgo(algo);
-          }}>
+						let algo = selectRef.current!.value;
+						console.log(startAlgo);
+						startAlgo(algo);
+					}}>
 					Animate
 				</button>
 				<button onClick={handleResetBoard}>Reset</button>

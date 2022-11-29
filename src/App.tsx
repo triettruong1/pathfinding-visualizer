@@ -1,7 +1,7 @@
 import { Board } from './Components/Board';
 import Header from './Components/Header';
 import './App.css';
-import { createContext, MutableRefObject, useRef, useState } from 'react';
+import { MutableRefObject, useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -11,16 +11,33 @@ export interface FuncRef {
 
 const App: React.FC = () => {
 	const [hasAnimated, setHasAnimated] = useState(false);
-	const context: MutableRefObject<FuncRef | null> = useRef(null);
+
+	let animateButtonReceiver = (algo: string) => {};
+	const animateReceiverCreator = (handle: (algo: string) => void) => {
+		animateButtonReceiver = handle;
+	};
+	const animateButtonTrigger = (algo: string) => {
+		animateButtonReceiver(algo);
+	};
+
+	let resetButtonReceiver = () => {};
+	const resetReceiverCreator = (handle: () => void) => {
+		resetButtonReceiver = handle;
+	};
+	const resetButtonTrigger = () => {
+        resetButtonReceiver();
+	};
 
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<main className='App'>
-				<Header
+				<Header hasAnimated={hasAnimated} startAlgo={animateButtonTrigger} resetBoard={resetButtonTrigger}/>
+				<Board
 					hasAnimated={hasAnimated}
-					startAlgo={context.current?.startAlgo!}
+					setHasAnimated={setHasAnimated}
+					animateReceiverCreator={animateReceiverCreator}
+                    resetReceiverCreator={resetReceiverCreator}
 				/>
-				<Board hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} ref={context} />
 			</main>
 		</DndProvider>
 	);
