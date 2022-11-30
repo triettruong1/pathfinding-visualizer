@@ -1,8 +1,9 @@
-import { Dispatch, forwardRef, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import './Board.css';
-import { getNodesInShortestPathOrder } from '../Algorithm/Helpers';
+import { getNodesInShortestPathOrder, Node } from '../Algorithm/Helpers';
 import dijkstra from '../Algorithm/Dijkstra';
 import BFS from '../Algorithm/BFS';
+import AStar from '../Algorithm/AStar';
 import { useState, useRef } from 'react';
 import Grid from './Grid';
 import Start from './Start';
@@ -18,13 +19,6 @@ interface BoardProps {
 const BOARD_COL_NUM: number = 78;
 const BOARD_ROW_NUM: number = 36;
 
-export interface Node {
-	coordinate: number[];
-	distance: number;
-	previousNode: Node | null;
-	isWall: boolean;
-	isVisited: boolean;
-}
 
 export const Board: React.FC<BoardProps> = ({
 	setHasAnimated,
@@ -57,6 +51,7 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	const resetBoard = () => {
+		setHasAnimated(false);
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				let node = nodeRefs.current[col][row];
@@ -66,7 +61,6 @@ export const Board: React.FC<BoardProps> = ({
 					node.classList.remove('shortest-path');
 			}
 		}
-		setHasAnimated(false);
 		setBoard(populateBoard());
 	};
 
@@ -74,9 +68,9 @@ export const Board: React.FC<BoardProps> = ({
 	const updateBoardWallState = () => {
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
-					nodeRefs.current[col][row].className.includes('wall')
-						? (board[col][row].isWall = true)
-						: ' ';
+				nodeRefs.current[col][row].className.includes('wall')
+					? (board[col][row].isWall = true)
+					: ' ';
 			}
 		}
 	};
@@ -103,6 +97,8 @@ export const Board: React.FC<BoardProps> = ({
 				break;
 			case 'Dijkstra':
 				visualizeAlgo(dijkstra, startNode, endNode);
+            case 'A-Star':
+                visualizeAlgo(AStar, startNode, endNode);
 			default:
 				console.log('error');
 		}
@@ -125,7 +121,7 @@ export const Board: React.FC<BoardProps> = ({
 			if (step === visitedNodesInOrder.length) {
 				setTimeout(() => {
 					animateShortestPath(nodesInShortestPathOrder);
-				}, step * 10);
+				}, step * 5);
 				return;
 			}
 			setTimeout(() => {
@@ -133,19 +129,19 @@ export const Board: React.FC<BoardProps> = ({
 				const [node_X, node_Y] = coordinate;
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' visited');
-			}, step * 10);
+			}, step * 5);
 		}
 	};
 
 	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
-		const delay = nodesInShortestPathOrder.length * 25;
+		const delay = nodesInShortestPathOrder.length * 15;
 		for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
 			setTimeout(() => {
 				const { coordinate } = nodesInShortestPathOrder[step];
 				const [node_X, node_Y] = coordinate;
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
-			}, 25 * step);
+			}, 15 * step);
 		}
 		setTimeout(() => {
 			setHasAnimated(true);
@@ -232,6 +228,7 @@ export const Board: React.FC<BoardProps> = ({
 			className='grid-container'
 			onMouseDown={() => updateMouseClick(true)}
 			onMouseUp={() => {
+				updateBoardWallState();
 				updateMouseClick(false);
 			}}
 			onMouseLeave={() => updateMouseClick(false)}

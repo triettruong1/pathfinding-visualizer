@@ -32,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, hasAnimated, resetBoard }) =
 				<select ref={selectRef}>
 					<option>BFS</option>
 					<option>Dijkstra</option>
+                    <option>A-Star</option>
 				</select>
 			</div>
 		</header>

@@ -1,7 +1,7 @@
 import { Board } from './Components/Board';
 import Header from './Components/Header';
 import './App.css';
-import { MutableRefObject, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -21,18 +21,22 @@ const App: React.FC = () => {
 		resetButtonReceiver = handle;
 	};
 	const resetButtonTrigger = () => {
-        resetButtonReceiver();
+		resetButtonReceiver();
 	};
 
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<main className='App'>
-				<Header hasAnimated={hasAnimated} startAlgo={animateButtonTrigger} resetBoard={resetButtonTrigger}/>
+				<Header
+					hasAnimated={hasAnimated}
+					startAlgo={animateButtonTrigger}
+					resetBoard={resetButtonTrigger}
+				/>
 				<Board
 					hasAnimated={hasAnimated}
 					setHasAnimated={setHasAnimated}
 					animateReceiverCreator={animateReceiverCreator}
-                    resetReceiverCreator={resetReceiverCreator}
+					resetReceiverCreator={resetReceiverCreator}
 				/>
 			</main>
 		</DndProvider>

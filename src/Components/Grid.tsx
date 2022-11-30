@@ -29,20 +29,20 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		const [nodeClass, setNodeClass] = useState(className);
 		const [{ isHovering }, dropRef] = useDrop(() => ({
 			accept: ['start', 'end'],
-			drop: (item, monitor) => {
+			drop: (_, monitor) => {
 				if (handleChangeStartPosition && monitor.getItemType() === 'start')
 					handleChangeStartPosition(coordinate);
 				if (handleChangeEndPosition && monitor.getItemType() === 'end')
 					handleChangeEndPosition(coordinate);
 				updateMouseClick((prevState) => !prevState);
 			},
-			canDrop: (_, monitor) => {
+			canDrop: () => {
 				return !nodeClass.includes('wall');
 			},
 			collect: (monitor) => ({
 				isHovering: !!monitor.isOver(),
 			}),
-		}));
+		}), [nodeClass]);
 
 		const hoveringStyle = isHovering
 			? { border: '1px solid blue' }

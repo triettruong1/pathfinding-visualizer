@@ -1,4 +1,36 @@
-import { Node } from '../Components/Board';
+export interface Node {
+	coordinate: number[];
+	distance: number;
+	previousNode: Node | null;
+	isWall: boolean;
+	isVisited: boolean;
+}
+
+interface IQueue<T> {
+	enqueue(item: T): void;
+	dequeue(): T;
+	size(): number;
+}
+
+export class Queue<T> implements IQueue<T> {
+	private storage: T[] = [];
+
+	constructor(private capacity: number = Infinity) {}
+
+	enqueue(item: T): void {
+		if (this.size() === this.capacity) {
+			throw Error('Queue has reached max capacity, you cannot add more items');
+		}
+		this.storage.push(item);
+	}
+	dequeue(): T {
+		return this.storage.shift()!;
+	}
+	size(): number {
+		return this.storage.length;
+	}
+}
+
 export function sortNodesByDistance(unvisitedNodes: Node[]) {
     unvisitedNodes.sort((nodeA: Node, nodeB: Node) => nodeA.distance - nodeB.distance);
 }
@@ -13,7 +45,7 @@ export function getAllNodes(grid: Node[][]) {
     return nodes;
 }
 
-export function updateUnvisitedNeighbors(node: Node, grid: Node[][]) {
+export function updateUnvisitedNeighbors(node: Node, grid: Node[][]): void {
     const unvisitedNeighbors = getUnvisitedNeighbors(node, grid);
     for (const neighbor of unvisitedNeighbors) {
         neighbor.distance = node.distance + 1;
@@ -32,7 +64,6 @@ export function getUnvisitedNeighbors(node: Node, grid: Node[][]) {
 }
 
 // Backtracks from the finishNode to find the shortest path.
-// Only works when called *after* the dijkstra method above.
 export function getNodesInShortestPathOrder(finishNode: Node) {
     const nodesInShortestPathOrder = [];
     let currentNode: Node = finishNode;

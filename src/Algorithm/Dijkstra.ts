@@ -1,4 +1,4 @@
-import { Node } from '../Components/Board';
+import { Node } from './Helpers';
 import { getAllNodes, sortNodesByDistance, updateUnvisitedNeighbors } from './Helpers';
 
 export default function dijkstra(grid: Node[][], startNode: Node, finishNode: Node) {

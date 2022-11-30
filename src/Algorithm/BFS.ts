@@ -1,5 +1,5 @@
-import { Node } from '../Components/Board';
-import { updateUnvisitedNeighbors } from './Helpers';
+import { Node } from './Helpers';
+import { updateUnvisitedNeighbors, Queue } from './Helpers';
 
 /*
 1. Add Start Node
@@ -8,30 +8,6 @@ import { updateUnvisitedNeighbors } from './Helpers';
 4. Check all unvisited neighbors of newNode  
 5. Repeat
 */
-interface IQueue<T> {
-	enqueue(item: T): void;
-	dequeue(): T;
-	size(): number;
-}
-
-class Queue<T> implements IQueue<T> {
-	private storage: T[] = [];
-
-	constructor(private capacity: number = Infinity) {}
-
-	enqueue(item: T): void {
-		if (this.size() === this.capacity) {
-			throw Error('Queue has reached max capacity, you cannot add more items');
-		}
-		this.storage.push(item);
-	}
-	dequeue(): T {
-		return this.storage.shift()!;
-	}
-	size(): number {
-		return this.storage.length;
-	}
-}
 
 export default function BFS(grid: Node[][], startNode: Node, endNode: Node) {
 	const nodeQueue = new Queue<Node>();
