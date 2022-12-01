@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder, Node } from '../Algorithm/Helpers';
 import dijkstra from '../Algorithm/Dijkstra';
 import BFS from '../Algorithm/BFS';
 import AStar from '../Algorithm/AStar';
-import { useState, useRef } from 'react';
 import Grid from './Grid';
 import Start from './Start';
 import End from './End';
@@ -97,8 +97,10 @@ export const Board: React.FC<BoardProps> = ({
 				break;
 			case 'Dijkstra':
 				visualizeAlgo(dijkstra, startNode, endNode);
+                break;
             case 'A-Star':
                 visualizeAlgo(AStar, startNode, endNode);
+                break;
 			default:
 				console.log('error');
 		}

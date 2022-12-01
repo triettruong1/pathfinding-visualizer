@@ -11,40 +11,36 @@ export default function AStar(grid: Node[][], startNode: Node, endNode: Node) {
 	const visitedNodes: Node[] = [];
 	const openSet = new Map<Node, number>();
 	const closedSet = new Map<Node, number>();
-	//using the distance property as F cost
+	//using distance property as G cost
 	startNode.distance = 0;
 	startNode.isVisited = true;
 	openSet.set(startNode, startNode.distance);
 	visitedNodes.push(startNode);
 	while (openSet.size !== 0) {
 		const sortedOpenSet = new Map([...openSet.entries()].sort((a, b) => a[1] - b[1])); //Sort and create a copy of openSet
-		const [currentSmallestFCostNode]: any = sortedOpenSet.keys();
+		const [currentSmallestFCostNode]: Iterable<Node> = sortedOpenSet.keys();
 		openSet.delete(currentSmallestFCostNode); //Remove node from openSet
 		if (currentSmallestFCostNode === endNode) return visitedNodes;
-		const neighbors: Node[] = getUnvisitedNeighbors(currentSmallestFCostNode, grid);
 		updateUnvisitedNeighbors(currentSmallestFCostNode, grid);
+		const neighbors: Node[] = getUnvisitedNeighbors(currentSmallestFCostNode, grid);
 		for (let neighbor of neighbors) {
 			if (neighbor === endNode) return visitedNodes;
-            if (neighbor.isWall) continue;
-			const manhattanDistance = manDistance(neighbor, endNode);
-			const fCost = neighbor.distance + manhattanDistance;
-			if (openSet.has(neighbor) && openSet.get(neighbor)! < fCost) continue;
-            else if (closedSet.has(neighbor) && closedSet.get(neighbor)! < fCost) continue;
-			else {
-                console.log(neighbor.distance);
-                neighbor.isVisited = true;
-				neighbor.distance = fCost;
-                visitedNodes.push(neighbor);
-				openSet.set(neighbor, fCost);
-			}
+			if (neighbor.isWall) continue;
+			const HCost = manDistance(neighbor, endNode);
+			const neighborFCost = neighbor.distance + HCost;
+			if (openSet.has(neighbor) && openSet.get(neighbor)! < neighborFCost) continue;
+			else if (closedSet.has(neighbor) && closedSet.get(neighbor)! < neighborFCost) continue;
+			openSet.set(neighbor, neighborFCost);
+            neighbor.isVisited = true;
 		}
-        closedSet.set(currentSmallestFCostNode, currentSmallestFCostNode.distance);
+		visitedNodes.push(currentSmallestFCostNode);
+		closedSet.set(currentSmallestFCostNode, currentSmallestFCostNode.distance);
 	}
-    return visitedNodes;
+	return visitedNodes;
 }
 
-const manDistance = (node: Node, endNode: Node) => {
-	const [endX, endY] = endNode.coordinate;
+const manDistance = (node: Node, destinationNode: Node) => {
+	const [endX, endY] = destinationNode.coordinate;
 	const [nodeX, nodeY] = node.coordinate;
-	return Math.abs(nodeX - endX) + Math.abs(nodeY - endY);
+	return Math.abs(endX - nodeX) + Math.abs(endY - nodeY);
 };
