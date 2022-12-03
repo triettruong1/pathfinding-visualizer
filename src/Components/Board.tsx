@@ -1,10 +1,9 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './Board.css';
-import { getNodesInShortestPathOrder, Node } from '../Algorithm/Helpers';
-import dijkstra from '../Algorithm/Dijkstra';
-import BFS from '../Algorithm/BFS';
-import AStar from '../Algorithm/AStar';
+import { getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
+import dijkstra from '../Algorithms/Dijkstra';
+import BFS from '../Algorithms/BFS';
+import AStar from '../Algorithms/AStar';
 import Grid from './Grid';
 import Start from './Start';
 import End from './End';
@@ -12,25 +11,22 @@ import End from './End';
 interface BoardProps {
 	animateReceiverCreator: (handle: (algo: string) => void) => void;
 	resetReceiverCreator: (handle: () => void) => void;
-	setHasAnimated: Dispatch<SetStateAction<boolean>>;
-	hasAnimated: boolean;
+	resetPathReceiverCreator: (handle: () => void) => void;
 }
 
 const BOARD_COL_NUM: number = 78;
-const BOARD_ROW_NUM: number = 36;
-
+const BOARD_ROW_NUM: number = 35;
 
 export const Board: React.FC<BoardProps> = ({
-	setHasAnimated,
-	hasAnimated,
 	animateReceiverCreator,
 	resetReceiverCreator,
+	resetPathReceiverCreator,
 }) => {
-	const [isClicking, updateMouseClick] = useState(false);
-	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 	const [board, setBoard] = useState<Node[][]>([]);
 	const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
 	const [endPos, setEndPos] = useState<[number, number]>([50, 10]);
+	const [isClicking, updateMouseClick] = useState(false);
+	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 
 	const populateBoard = () => {
 		const newBoard: Node[][] = [];
@@ -51,7 +47,6 @@ export const Board: React.FC<BoardProps> = ({
 	};
 
 	const resetBoard = () => {
-		setHasAnimated(false);
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				let node = nodeRefs.current[col][row];
@@ -62,6 +57,21 @@ export const Board: React.FC<BoardProps> = ({
 			}
 		}
 		setBoard(populateBoard());
+	};
+
+	const resetPath = () => {
+		for (let col = 0; col < BOARD_COL_NUM; col++) {
+			for (let row = 0; row < BOARD_ROW_NUM; row++) {
+				let node = nodeRefs.current[col][row];
+				if (node.classList.contains('visited')) {
+					node.classList.remove('visited');
+				}
+				if (node.classList.contains('shortest-path'))
+					node.classList.remove('shortest-path');
+				board[col][row].isVisited = false;
+			}
+		}
+		setBoard([...board]);
 	};
 
 	//update wall state of grid
@@ -97,10 +107,10 @@ export const Board: React.FC<BoardProps> = ({
 				break;
 			case 'Dijkstra':
 				visualizeAlgo(dijkstra, startNode, endNode);
-                break;
-            case 'A-Star':
-                visualizeAlgo(AStar, startNode, endNode);
-                break;
+				break;
+			case 'A-Star':
+				visualizeAlgo(AStar, startNode, endNode);
+				break;
 			default:
 				console.log('error');
 		}
@@ -114,6 +124,7 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+        console.log(shortestPathOfNodes);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
 	}
 
@@ -123,7 +134,7 @@ export const Board: React.FC<BoardProps> = ({
 			if (step === visitedNodesInOrder.length) {
 				setTimeout(() => {
 					animateShortestPath(nodesInShortestPathOrder);
-				}, step * 5);
+				}, step * 15);
 				return;
 			}
 			setTimeout(() => {
@@ -131,12 +142,11 @@ export const Board: React.FC<BoardProps> = ({
 				const [node_X, node_Y] = coordinate;
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' visited');
-			}, step * 5);
-		}
+			}, step * 15);
+		 }
 	};
 
 	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
-		const delay = nodesInShortestPathOrder.length * 15;
 		for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
 			setTimeout(() => {
 				const { coordinate } = nodesInShortestPathOrder[step];
@@ -145,13 +155,11 @@ export const Board: React.FC<BoardProps> = ({
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
 			}, 15 * step);
 		}
-		setTimeout(() => {
-			setHasAnimated(true);
-		}, delay + 100);
 	};
 
 	animateReceiverCreator(startAlgo);
 	resetReceiverCreator(resetBoard);
+	resetPathReceiverCreator(resetPath);
 
 	const instantGeneratePath = () => {};
 

@@ -6,8 +6,6 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App: React.FC = () => {
-	const [hasAnimated, setHasAnimated] = useState(false);
-
 	let animateButtonReceiver = (algo: string) => {};
 	const animateReceiverCreator = (handle: (algo: string) => void) => {
 		animateButtonReceiver = handle;
@@ -24,19 +22,22 @@ const App: React.FC = () => {
 		resetButtonReceiver();
 	};
 
+	let resetPathButtonReceiver = () => {};
+	const resetPathReceiverCreator = (handle: () => void) => {
+		resetPathButtonReceiver = handle;
+	};
+	const resetPathButtonTrigger = () => {
+      resetPathButtonReceiver();
+    };
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<main className='App'>
-				<Header
-					hasAnimated={hasAnimated}
-					startAlgo={animateButtonTrigger}
-					resetBoard={resetButtonTrigger}
-				/>
+				<Header startAlgo={animateButtonTrigger} resetBoard={resetButtonTrigger} resetPath={resetPathButtonTrigger}/>
 				<Board
-					hasAnimated={hasAnimated}
-					setHasAnimated={setHasAnimated}
 					animateReceiverCreator={animateReceiverCreator}
 					resetReceiverCreator={resetReceiverCreator}
+                    resetPathReceiverCreator={resetPathReceiverCreator}
 				/>
 			</main>
 		</DndProvider>

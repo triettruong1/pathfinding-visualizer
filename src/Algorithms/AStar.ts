@@ -21,18 +21,21 @@ export default function AStar(grid: Node[][], startNode: Node, endNode: Node) {
 		const [currentSmallestFCostNode]: Iterable<Node> = sortedOpenSet.keys();
 		openSet.delete(currentSmallestFCostNode); //Remove node from openSet
 		if (currentSmallestFCostNode === endNode) return visitedNodes;
-		updateUnvisitedNeighbors(currentSmallestFCostNode, grid);
 		const neighbors: Node[] = getUnvisitedNeighbors(currentSmallestFCostNode, grid);
 		for (let neighbor of neighbors) {
-			if (neighbor === endNode) return visitedNodes;
 			if (neighbor.isWall) continue;
+            neighbor.previousNode = currentSmallestFCostNode;
+            neighbor.distance = currentSmallestFCostNode.distance + 1;
+            neighbor.isVisited = true;
 			const HCost = manDistance(neighbor, endNode);
 			const neighborFCost = neighbor.distance + HCost;
 			if (openSet.has(neighbor) && openSet.get(neighbor)! < neighborFCost) continue;
 			else if (closedSet.has(neighbor) && closedSet.get(neighbor)! < neighborFCost) continue;
-			openSet.set(neighbor, neighborFCost);
-            neighbor.isVisited = true;
+			else {
+				openSet.set(neighbor, neighborFCost);
+			}
 		}
+        currentSmallestFCostNode.isVisited = true;
 		visitedNodes.push(currentSmallestFCostNode);
 		closedSet.set(currentSmallestFCostNode, currentSmallestFCostNode.distance);
 	}
