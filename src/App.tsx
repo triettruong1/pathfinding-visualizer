@@ -6,6 +6,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App: React.FC = () => {
+    //There's gotta be a way to do this better
 	let animateButtonReceiver = (algo: string) => {};
 	const animateReceiverCreator = (handle: (algo: string) => void) => {
 		animateButtonReceiver = handle;
@@ -30,14 +31,23 @@ const App: React.FC = () => {
       resetPathButtonReceiver();
     };
 
+    let generateMazeButtonReceiver = () => {};
+    const generateMazeReceiverCreator = (handle: () => void) => {
+      generateMazeButtonReceiver = handle;
+    }
+    const generateMazeButtonTrigger = () => {
+      generateMazeButtonReceiver();
+    }
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<main className='App'>
-				<Header startAlgo={animateButtonTrigger} resetBoard={resetButtonTrigger} resetPath={resetPathButtonTrigger}/>
+				<Header startAlgo={animateButtonTrigger} resetBoard={resetButtonTrigger} resetPath={resetPathButtonTrigger} generateMaze={generateMazeButtonTrigger}/>
 				<Board
 					animateReceiverCreator={animateReceiverCreator}
 					resetReceiverCreator={resetReceiverCreator}
                     resetPathReceiverCreator={resetPathReceiverCreator}
+                    generateMazeReceiverCreator={generateMazeReceiverCreator}
 				/>
 			</main>
 		</DndProvider>

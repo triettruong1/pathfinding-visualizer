@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
+import { generateMazeSetup, recursiveBacktrackAlgo } from '../Algorithms/MazeGenerations';
 import dijkstra from '../Algorithms/Dijkstra';
 import BFS from '../Algorithms/BFS';
 import AStar from '../Algorithms/AStar';
@@ -12,6 +13,7 @@ interface BoardProps {
 	animateReceiverCreator: (handle: (algo: string) => void) => void;
 	resetReceiverCreator: (handle: () => void) => void;
 	resetPathReceiverCreator: (handle: () => void) => void;
+	generateMazeReceiverCreator: (handle: () => void) => void;
 }
 
 const BOARD_COL_NUM: number = 78;
@@ -21,6 +23,7 @@ export const Board: React.FC<BoardProps> = ({
 	animateReceiverCreator,
 	resetReceiverCreator,
 	resetPathReceiverCreator,
+	generateMazeReceiverCreator,
 }) => {
 	const [board, setBoard] = useState<Node[][]>([]);
 	const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
@@ -124,7 +127,6 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-        console.log(shortestPathOfNodes);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
 	}
 
@@ -143,7 +145,7 @@ export const Board: React.FC<BoardProps> = ({
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' visited');
 			}, step * 15);
-		 }
+		}
 	};
 
 	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
@@ -157,9 +159,37 @@ export const Board: React.FC<BoardProps> = ({
 		}
 	};
 
+	const drawMaze = () => {
+		const mazeSetup = generateMazeSetup(BOARD_COL_NUM, BOARD_ROW_NUM);
+		const startNode = board[1][1];
+        const maze: [number, number][] = [];
+        recursiveBacktrackAlgo(startNode, maze, board);
+		let step = 0;
+		while (mazeSetup.length !== 0) {
+			const [nodeX, nodeY] = mazeSetup.shift()!;
+			setTimeout(() => {
+				if (
+					!nodeRefs.current[nodeX][nodeY].classList.contains('wall') &&
+				!!!nodeRefs.current[nodeX][nodeY].innerHTML
+				) {
+					board[nodeX][nodeY].isWall = true;
+					nodeRefs.current[nodeX][nodeY].classList.add('wall');
+				}
+			}, step++ * 2);
+		}
+        while (maze.length !== 0) {
+            const [nodeX, nodeY] = maze.shift()!;
+            setTimeout(() => {
+                board[nodeX][nodeY].isWall = false;
+                nodeRefs.current[nodeX][nodeY].classList.remove('wall');
+            }, step++ * 2)
+        }
+	};
+
 	animateReceiverCreator(startAlgo);
 	resetReceiverCreator(resetBoard);
 	resetPathReceiverCreator(resetPath);
+	generateMazeReceiverCreator(drawMaze);
 
 	const instantGeneratePath = () => {};
 

@@ -1,5 +1,5 @@
 export interface Node {
-	coordinate: number[];
+	coordinate: [number, number];
 	distance: number;
 	previousNode: Node | null;
 	isWall: boolean;

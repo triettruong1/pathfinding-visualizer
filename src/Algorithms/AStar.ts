@@ -19,6 +19,7 @@ export default function AStar(grid: Node[][], startNode: Node, endNode: Node) {
 	while (openSet.size !== 0) {
 		const sortedOpenSet = new Map([...openSet.entries()].sort((a, b) => a[1] - b[1])); //Sort and create a copy of openSet
 		const [currentSmallestFCostNode]: Iterable<Node> = sortedOpenSet.keys();
+        currentSmallestFCostNode.isVisited = true;
 		openSet.delete(currentSmallestFCostNode); //Remove node from openSet
 		if (currentSmallestFCostNode === endNode) return visitedNodes;
 		const neighbors: Node[] = getUnvisitedNeighbors(currentSmallestFCostNode, grid);
@@ -35,7 +36,6 @@ export default function AStar(grid: Node[][], startNode: Node, endNode: Node) {
 				openSet.set(neighbor, neighborFCost);
 			}
 		}
-        currentSmallestFCostNode.isVisited = true;
 		visitedNodes.push(currentSmallestFCostNode);
 		closedSet.set(currentSmallestFCostNode, currentSmallestFCostNode.distance);
 	}
