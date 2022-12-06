@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
-import { generateMazeSetup, recursiveBacktrackAlgo } from '../Algorithms/MazeGenerations';
+import { generateMazeSetup, recursiveBacktrackMazeAlgo } from '../Algorithms/MazeGenerations';
 import dijkstra from '../Algorithms/Dijkstra';
 import BFS from '../Algorithms/BFS';
 import AStar from '../Algorithms/AStar';
 import Grid from './Grid';
 import Start from './Start';
 import End from './End';
+import DFS from '../Algorithms/DFS';
 
 interface BoardProps {
 	animateReceiverCreator: (handle: (algo: string) => void) => void;
@@ -108,6 +109,9 @@ export const Board: React.FC<BoardProps> = ({
 			case 'BFS':
 				visualizeAlgo(BFS, startNode, endNode);
 				break;
+            case 'DFS':
+                visualizeAlgo(DFS, startNode, endNode);
+                break;
 			case 'Dijkstra':
 				visualizeAlgo(dijkstra, startNode, endNode);
 				break;
@@ -127,6 +131,7 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+        console.log(visitedNodesInOrder);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
 	}
 
@@ -155,24 +160,23 @@ export const Board: React.FC<BoardProps> = ({
 				const [node_X, node_Y] = coordinate;
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
-			}, 15 * step);
+			}, 10 * step);
 		}
 	};
 
 	const drawMaze = () => {
-		const mazeSetup = generateMazeSetup(BOARD_COL_NUM, BOARD_ROW_NUM);
 		const startNode = board[1][1];
+		const mazeSetup = generateMazeSetup(BOARD_COL_NUM, BOARD_ROW_NUM, board);
         const maze: [number, number][] = [];
-        recursiveBacktrackAlgo(startNode, maze, board);
+        recursiveBacktrackMazeAlgo(startNode, maze, board);
 		let step = 0;
 		while (mazeSetup.length !== 0) {
 			const [nodeX, nodeY] = mazeSetup.shift()!;
 			setTimeout(() => {
 				if (
 					!nodeRefs.current[nodeX][nodeY].classList.contains('wall') &&
-				!!!nodeRefs.current[nodeX][nodeY].innerHTML
+				    !!!nodeRefs.current[nodeX][nodeY].innerHTML
 				) {
-					board[nodeX][nodeY].isWall = true;
 					nodeRefs.current[nodeX][nodeY].classList.add('wall');
 				}
 			}, step++ * 2);
@@ -180,7 +184,7 @@ export const Board: React.FC<BoardProps> = ({
         while (maze.length !== 0) {
             const [nodeX, nodeY] = maze.shift()!;
             setTimeout(() => {
-                board[nodeX][nodeY].isWall = false;
+                board[nodeX][nodeY].isVisited = false;
                 nodeRefs.current[nodeX][nodeY].classList.remove('wall');
             }, step++ * 2)
         }

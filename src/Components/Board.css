@@ -93,11 +93,13 @@
 
 @keyframes shortestPathAnimation {
 	0% {
+		transform: scale(0.8);
 		border: 1px solid rgba(19, 17, 17, 0.15);
 		background-color: rgba(243, 175, 49, 0.55);
 	}
 
 	100% {
+		transform: scale(1);
 		border: 1px solid rgba(19, 17, 17, 0);
 		background: rgba(226, 241, 17, 0.719);
 	}

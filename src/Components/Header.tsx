@@ -38,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, resetBoard, resetPath, gener
 				<select ref={selectRef}>
 					<option>A-Star</option>
 					<option>BFS</option>
+                    <option>DFS</option>
 					<option>Dijkstra</option>
 				</select>
 				<button
