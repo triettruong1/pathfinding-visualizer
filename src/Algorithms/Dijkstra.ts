@@ -1,7 +1,7 @@
 import { Node } from './Helpers';
 import { getAllNodes, sortNodesByDistance, updateUnvisitedNeighbors } from './Helpers';
 
-export default function dijkstra(grid: Node[][], startNode: Node, finishNode: Node) {
+const Dijkstra = (grid: Node[][], startNode: Node, finishNode: Node) => {
     const visitedNodes: Node[] = [];
     startNode.distance = 0;
     const unvisitedNodes = getAllNodes(grid);
@@ -18,3 +18,4 @@ export default function dijkstra(grid: Node[][], startNode: Node, finishNode: No
     }
     return visitedNodes;
 }
+export default Dijkstra;

@@ -2,13 +2,13 @@ import { useEffect, useState, useRef } from 'react';
 import './Board.css';
 import { getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
 import { generateMazeSetup, recursiveBacktrackMazeAlgo } from '../Algorithms/MazeGenerations';
-import dijkstra from '../Algorithms/Dijkstra';
-import BFS from '../Algorithms/BFS';
 import AStar from '../Algorithms/AStar';
+import BFS from '../Algorithms/BFS';
+import DFS from '../Algorithms/DFS';
+import Dijkstra from '../Algorithms/Dijkstra';
 import Grid from './Grid';
 import Start from './Start';
 import End from './End';
-import DFS from '../Algorithms/DFS';
 
 interface BoardProps {
 	animateReceiverCreator: (handle: (algo: string) => void) => void;
@@ -17,7 +17,7 @@ interface BoardProps {
 	generateMazeReceiverCreator: (handle: () => void) => void;
 }
 
-const BOARD_COL_NUM: number = 78;
+const BOARD_COL_NUM: number = 75;
 const BOARD_ROW_NUM: number = 35;
 
 export const Board: React.FC<BoardProps> = ({
@@ -27,8 +27,8 @@ export const Board: React.FC<BoardProps> = ({
 	generateMazeReceiverCreator,
 }) => {
 	const [board, setBoard] = useState<Node[][]>([]);
-	const [startPos, setStartPos] = useState<[number, number]>([35, 10]);
-	const [endPos, setEndPos] = useState<[number, number]>([50, 10]);
+	const [startPos, setStartPos] = useState<[number, number]>([15, 12]);
+	const [endPos, setEndPos] = useState<[number, number]>([55, 12]);
 	const [isClicking, updateMouseClick] = useState(false);
 	const nodeRefs = useRef<HTMLDivElement[][]>([]);
 
@@ -75,7 +75,6 @@ export const Board: React.FC<BoardProps> = ({
 				board[col][row].isVisited = false;
 			}
 		}
-		setBoard([...board]);
 	};
 
 	//update wall state of grid
@@ -106,6 +105,9 @@ export const Board: React.FC<BoardProps> = ({
 		const startNode = board[START_X][START_Y];
 		const endNode = board[END_X][END_Y];
 		switch (algo) {
+			case 'A-Star':
+				visualizeAlgo(AStar, startNode, endNode);
+				break;
 			case 'BFS':
 				visualizeAlgo(BFS, startNode, endNode);
 				break;
@@ -113,10 +115,7 @@ export const Board: React.FC<BoardProps> = ({
                 visualizeAlgo(DFS, startNode, endNode);
                 break;
 			case 'Dijkstra':
-				visualizeAlgo(dijkstra, startNode, endNode);
-				break;
-			case 'A-Star':
-				visualizeAlgo(AStar, startNode, endNode);
+				visualizeAlgo(Dijkstra, startNode, endNode);
 				break;
 			default:
 				console.log('error');
@@ -131,7 +130,6 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-        console.log(shortestPathOfNodes);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
 	}
 
@@ -160,12 +158,13 @@ export const Board: React.FC<BoardProps> = ({
 				const [node_X, node_Y] = coordinate;
 				const nodeEle = nodeRefs.current[node_X][node_Y];
 				nodeEle.className = nodeEle.className.concat(' shortest-path');
-			}, 10 * step);
+			}, 15 * step);
 		}
 	};
 
 	const drawMaze = () => {
-		const startNode = board[1][1];
+        const [startNodeX, startNodeY] = startPos;
+        const startNode = board[startNodeX][startNodeY];
 		const mazeSetup = generateMazeSetup(BOARD_COL_NUM, BOARD_ROW_NUM, board);
         const maze: [number, number][] = [];
         recursiveBacktrackMazeAlgo(startNode, maze, board);
@@ -212,7 +211,8 @@ export const Board: React.FC<BoardProps> = ({
 		if (componentType === 'isStart') {
 			return (
 				<Grid
-					ref={(element: HTMLDivElement) => {
+				    key={y}	
+                    ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
 					}}
@@ -226,6 +226,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else if (componentType === 'isEnd') {
 			return (
 				<Grid
+				    key={y}	
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -240,6 +241,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else if (componentType === 'isWall') {
 			return (
 				<Grid
+				    key={y}	
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -253,6 +255,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else
 			return (
 				<Grid
+				    key={y}	
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -269,7 +272,7 @@ export const Board: React.FC<BoardProps> = ({
 
 	return (
 		<div
-			className='grid-container'
+			className='row-wrapper flex'
 			onMouseDown={() => updateMouseClick(true)}
 			onMouseUp={() => {
 				updateBoardWallState();
@@ -279,8 +282,8 @@ export const Board: React.FC<BoardProps> = ({
 			draggable='false'>
 			{board.map((nodeRow, rowIndex) => {
 				return (
-					<div className='row' draggable='false' key={rowIndex}>
-						{nodeRow.map((Node, colIndex) => {
+					<div className='row flex' draggable='false' key={rowIndex}>
+						{nodeRow.map((_, colIndex) => {
 							return generateGridComponent(rowIndex, colIndex);
 						})}
 					</div>

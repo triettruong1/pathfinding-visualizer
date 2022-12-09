@@ -1,4 +1,4 @@
-import { Node, getUnvisitedNeighbors, updateUnvisitedNeighbors } from './Helpers';
+import { Node, getUnvisitedNeighbors } from './Helpers';
 // G costs - how far away that node is from the starting Node
 // H costs - how far away that node is from the end Node
 // F costs = G cost + H cost
@@ -7,7 +7,7 @@ import { Node, getUnvisitedNeighbors, updateUnvisitedNeighbors } from './Helpers
 // Update FGH costs as you visit nodes only if it is a better path with lower F cost
 // End node has F cost = G cost
 
-export default function AStar(grid: Node[][], startNode: Node, endNode: Node) {
+const AStar = (grid: Node[][], startNode: Node, endNode: Node) => {
 	const visitedNodes: Node[] = [];
 	const openSet = new Map<Node, number>();
 	const closedSet = new Map<Node, number>();
@@ -47,3 +47,4 @@ const manDistance = (node: Node, destinationNode: Node) => {
 	const [nodeX, nodeY] = node.coordinate;
 	return Math.abs(endX - nodeX) + Math.abs(endY - nodeY);
 };
+export default AStar;
