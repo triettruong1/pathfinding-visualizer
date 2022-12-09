@@ -8,7 +8,7 @@ const DFS = (grid: Node[][], startNode: Node, endNode: Node) => {
 	visitedNodes.push(startNode);
 
 	while (nodeStack.length !== 0) {
-		let currentNode: Node = nodeStack.pop()!;
+		let currentNode: Node = nodeStack.shift()!;
         visitedNodes.push(currentNode);
 		if (currentNode === endNode) return visitedNodes;
 		let neighbors = getUnvisitedNeighbors(currentNode, grid);
@@ -16,6 +16,7 @@ const DFS = (grid: Node[][], startNode: Node, endNode: Node) => {
 			if (neighbor.isWall) continue;
             nodeStack.unshift(neighbor);
             neighbor.isVisited = true;
+            neighbor.previousNode = currentNode;
 		}
 	}
 	return visitedNodes;

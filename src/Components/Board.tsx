@@ -131,7 +131,7 @@ export const Board: React.FC<BoardProps> = ({
 		updateBoardWallState();
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-        console.log(visitedNodesInOrder);
+        console.log(shortestPathOfNodes);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
 	}
 
