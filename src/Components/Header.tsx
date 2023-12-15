@@ -54,7 +54,9 @@ const Header: React.FC<HeaderProps> = ({ startAlgo, resetBoard, resetPath, gener
 					Generate Maze
 				</button>
 				<button onClick={handleResetPath}>Reset Path</button>
-				<button className='danger' onClick={handleResetBoard}>Reset</button>
+				<button className='danger' onClick={handleResetBoard}>
+					Reset
+				</button>
 			</div>
 		</header>
 	);

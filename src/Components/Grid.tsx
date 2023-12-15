@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode, SetStateAction, useEffect, useState } from 'react';
+import { forwardRef, ReactNode, SetStateAction, useCallback, useEffect, useState } from 'react';
 import './Grid.css';
 import { useDrop } from 'react-dnd';
 import React from 'react';
@@ -27,35 +27,43 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 		nodeRef: any
 	) => {
 		const [nodeClass, setNodeClass] = useState(className);
-		const [{ isHovering }, dropRef] = useDrop(() => ({
-			accept: ['start', 'end'],
-			drop: (_, monitor) => {
-				if (handleChangeStartPosition && monitor.getItemType() === 'start')
-					handleChangeStartPosition(coordinate);
-				if (handleChangeEndPosition && monitor.getItemType() === 'end')
-					handleChangeEndPosition(coordinate);
-				updateMouseClick((prevState) => !prevState);
-			},
-			canDrop: () => {
-				return !nodeClass.includes('wall');
-			},
-			collect: (monitor) => ({
-				isHovering: !!monitor.isOver(),
+		const [{ isHovering }, dropRef] = useDrop(
+			() => ({
+				accept: ['start', 'end'],
+				drop: (_, monitor) => {
+					updateMouseClick((prevState) => !prevState);
+					if (handleChangeStartPosition && monitor.getItemType() === 'start') {
+						handleChangeStartPosition(coordinate);
+					}
+					if (handleChangeEndPosition && monitor.getItemType() === 'end') {
+						handleChangeEndPosition(coordinate);
+					}
+				},
+				canDrop: () => {
+					return !nodeClass.includes('wall');
+				},
+				collect: (monitor) => ({
+					isHovering: !!monitor.isOver(),
+				}),
 			}),
-		}), [nodeClass]);
+			[nodeClass]
+		);
 
 		const hoveringStyle = isHovering
 			? { border: '1px solid blue' }
 			: { border: '1px solid rgba(19, 17, 17, 0.15)' };
 
-		const handleWallChange = () => {
+		const handleWallChange = useCallback(() => {
 			if (isClicking && !!!children) {
 				setNodeClass((prev) => {
-					if (prev.includes('wall')) return prev;
-					return prev.concat(' wall');
+					if (prev.includes('wall')) {
+						return prev;
+					} else {
+						return prev.concat(' wall');
+					}
 				});
 			}
-		};
+		}, [nodeClass, isClicking]);
 
 		useEffect(() => {
 			setNodeClass(className);

@@ -1,55 +1,55 @@
 import { Board } from './Components/Board';
 import Header from './Components/Header';
 import './App.css';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App: React.FC = () => {
 	//There's gotta be a way to do this better
 	let animateButtonReceiver = (algo: string) => {};
-	const animateReceiverCreator = (handle: (algo: string) => void) => {
+	const animateReceiverCreator = useCallback((handle: (algo: string) => void) => {
 		animateButtonReceiver = handle;
-	};
-	const animateButtonTrigger = (algo: string) => {
+	}, []);
+	const animateButtonTrigger = useCallback((algo: string) => {
 		animateButtonReceiver(algo);
-	};
+	}, []);
 
 	let resetButtonReceiver = () => {};
-	const resetReceiverCreator = (handle: () => void) => {
+	const resetReceiverCreator = useCallback((handle: () => void) => {
 		resetButtonReceiver = handle;
-	};
-	const resetButtonTrigger = () => {
+	}, []);
+	const resetButtonTrigger = useCallback(() => {
 		resetButtonReceiver();
-	};
+	}, []);
 
 	let resetPathButtonReceiver = () => {};
-	const resetPathReceiverCreator = (handle: () => void) => {
+	const resetPathReceiverCreator = useCallback((handle: () => void) => {
 		resetPathButtonReceiver = handle;
-	};
-	const resetPathButtonTrigger = () => {
+	}, []);
+	const resetPathButtonTrigger = useCallback(() => {
 		resetPathButtonReceiver();
-	};
+	}, []);
 
 	let generateMazeButtonReceiver = () => {};
-	const generateMazeReceiverCreator = (handle: () => void) => {
+	const generateMazeReceiverCreator = useCallback((handle: () => void) => {
 		generateMazeButtonReceiver = handle;
-	};
-	const generateMazeButtonTrigger = () => {
+	}, []);
+	const generateMazeButtonTrigger = useCallback(() => {
 		generateMazeButtonReceiver();
-	};
+	}, []);
 
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<main className='App flex'>
-                <div className='header-wrapper'>
-                    <Header
-                        startAlgo={animateButtonTrigger}
-                        resetBoard={resetButtonTrigger}
-                        resetPath={resetPathButtonTrigger}
-                        generateMaze={generateMazeButtonTrigger}
-                    />
-                </div>
+				<div className='header-wrapper'>
+					<Header
+						startAlgo={animateButtonTrigger}
+						resetBoard={resetButtonTrigger}
+						resetPath={resetPathButtonTrigger}
+						generateMaze={generateMazeButtonTrigger}
+					/>
+				</div>
 				<div className='board-wrapper center'>
 					<Board
 						animateReceiverCreator={animateReceiverCreator}

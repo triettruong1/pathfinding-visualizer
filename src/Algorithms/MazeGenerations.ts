@@ -29,9 +29,13 @@ const recursiveGeneration = (
 	while (neighbors.length !== 0) {
 		const randomIndex = randomSelection(neighbors.length);
 		const randomlySelectedNeighbor = neighbors[randomIndex];
+
 		neighbors = neighbors.filter((_, index) => !(index === randomIndex));
+
 		if (visistedNodes.has(randomlySelectedNeighbor)) continue;
+
 		randomlySelectedNeighbor.previousNode = node;
+
 		connectTwoPathNode(node, randomlySelectedNeighbor, grid, maze, visistedNodes);
 		recursiveGeneration(randomlySelectedNeighbor, maze, grid, visistedNodes);
 	}

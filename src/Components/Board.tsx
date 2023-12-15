@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import './Board.css';
-import { getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
+import { AlgoFunc, getNodesInShortestPathOrder, Node } from '../Algorithms/Helpers';
 import { generateMazeSetup, recursiveBacktrackMazeAlgo } from '../Algorithms/MazeGenerations';
 import AStar from '../Algorithms/AStar';
 import BFS from '../Algorithms/BFS';
@@ -50,18 +50,26 @@ export const Board: React.FC<BoardProps> = ({
 		return newBoard;
 	};
 
-	const resetBoard = () => {
+	const resetBoard = useCallback(() => {
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				let node = nodeRefs.current[col][row];
-				if (node.classList.contains('visited')) node.classList.remove('visited');
-				if (node.classList.contains('wall')) node.classList.remove('wall');
-				if (node.classList.contains('shortest-path'))
+				if (node.classList.contains('visited')) {
+					node.classList.remove('visited');
+				}
+
+				if (node.classList.contains('wall')) {
+					node.classList.remove('wall');
+				}
+
+				if (node.classList.contains('shortest-path')) {
 					node.classList.remove('shortest-path');
+				}
 			}
 		}
 		setBoard(populateBoard());
-	};
+		updateBoardWallState();
+	}, [nodeRefs.current, board]);
 
 	const resetPath = () => {
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
@@ -77,8 +85,7 @@ export const Board: React.FC<BoardProps> = ({
 		}
 	};
 
-	//update wall state of grid
-	const updateBoardWallState = () => {
+	const updateBoardWallState = useCallback(() => {
 		for (let col = 0; col < BOARD_COL_NUM; col++) {
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				nodeRefs.current[col][row].className.includes('wall')
@@ -86,52 +93,51 @@ export const Board: React.FC<BoardProps> = ({
 					: ' ';
 			}
 		}
-	};
+	}, [board, endPos, startPos, nodeRefs.current]);
 
 	useEffect(() => {
 		setBoard(populateBoard());
 	}, []);
 
-	const handleChangeStartPos = (coordinate: [number, number]) => {
+	const handleChangeStartPos = useCallback((coordinate: [number, number]) => {
 		setStartPos(coordinate);
-	};
-	const handleChangeEndPos = (coordinate: [number, number]) => {
+	}, []);
+	const handleChangeEndPos = useCallback((coordinate: [number, number]) => {
 		setEndPos(coordinate);
-	};
+	}, []);
 
-	const startAlgo = (algo: string) => {
-		const [START_X, START_Y] = startPos;
-		const [END_X, END_Y] = endPos;
-		const startNode = board[START_X][START_Y];
-		const endNode = board[END_X][END_Y];
-		switch (algo) {
-			case 'A-Star':
-				visualizeAlgo(AStar, startNode, endNode);
-				break;
-			case 'BFS':
-				visualizeAlgo(BFS, startNode, endNode);
-				break;
-            case 'DFS':
-                visualizeAlgo(DFS, startNode, endNode);
-                break;
-			case 'Dijkstra':
-				visualizeAlgo(Dijkstra, startNode, endNode);
-				break;
-			default:
-				console.log('error');
-		}
-	};
+	const startAlgo = useCallback(
+		(algo: string) => {
+			updateBoardWallState();
+			const [START_X, START_Y] = startPos;
+			const [END_X, END_Y] = endPos;
+			const startNode = board[START_X][START_Y];
+			const endNode = board[END_X][END_Y];
+			switch (algo) {
+				case 'A-Star':
+					visualizeAlgo(AStar, startNode, endNode);
+					break;
+				case 'BFS':
+					visualizeAlgo(BFS, startNode, endNode);
+					break;
+				case 'DFS':
+					visualizeAlgo(DFS, startNode, endNode);
+					break;
+				case 'Dijkstra':
+					visualizeAlgo(Dijkstra, startNode, endNode);
+					break;
+				default:
+					console.log('error');
+			}
+		},
+		[startPos, endPos, board]
+	);
 
-	function visualizeAlgo(
-		algoFunction: (board: Node[][], startNode: Node, endNode: Node) => Node[],
-		startNode: Node,
-		endNode: Node
-	) {
-		updateBoardWallState();
+	const visualizeAlgo = (algoFunction: AlgoFunc, startNode: Node, endNode: Node) => {
 		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
 		animatePath(visitedNodesInOrder, shortestPathOfNodes);
-	}
+	};
 
 	const animatePath = (visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
 		if (!visitedNodesInOrder) return console.log('error');
@@ -162,39 +168,39 @@ export const Board: React.FC<BoardProps> = ({
 		}
 	};
 
-	const drawMaze = () => {
-        const [startNodeX, startNodeY] = startPos;
-        const startNode = board[startNodeX][startNodeY];
+	const drawMaze = useCallback(() => {
+		const [startNodeX, startNodeY] = startPos;
+		const startNode = board[startNodeX][startNodeY];
 		const mazeSetup = generateMazeSetup(BOARD_COL_NUM, BOARD_ROW_NUM, board);
-        const maze: [number, number][] = [];
-        recursiveBacktrackMazeAlgo(startNode, maze, board);
+		const maze: [number, number][] = [];
+		recursiveBacktrackMazeAlgo(startNode, maze, board);
 		let step = 0;
 		while (mazeSetup.length !== 0) {
 			const [nodeX, nodeY] = mazeSetup.shift()!;
 			setTimeout(() => {
 				if (
 					!nodeRefs.current[nodeX][nodeY].classList.contains('wall') &&
-				    !!!nodeRefs.current[nodeX][nodeY].innerHTML
+					!!!nodeRefs.current[nodeX][nodeY].innerHTML
 				) {
 					nodeRefs.current[nodeX][nodeY].classList.add('wall');
 				}
 			}, step++ * 2);
 		}
-        while (maze.length !== 0) {
-            const [nodeX, nodeY] = maze.shift()!;
-            setTimeout(() => {
-                board[nodeX][nodeY].isVisited = false;
-                nodeRefs.current[nodeX][nodeY].classList.remove('wall');
-            }, step++ * 2)
-        }
-	};
+		while (maze.length !== 0) {
+			const [nodeX, nodeY] = maze.shift()!;
+			setTimeout(() => {
+				board[nodeX][nodeY].isVisited = false;
+				nodeRefs.current[nodeX][nodeY].classList.remove('wall');
+			}, step++ * 2);
+		}
+	}, [board, nodeRefs]);
 
 	animateReceiverCreator(startAlgo);
 	resetReceiverCreator(resetBoard);
 	resetPathReceiverCreator(resetPath);
 	generateMazeReceiverCreator(drawMaze);
 
-	const instantGeneratePath = () => {};
+	// const instantGeneratePath = () => {};
 
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
@@ -211,8 +217,8 @@ export const Board: React.FC<BoardProps> = ({
 		if (componentType === 'isStart') {
 			return (
 				<Grid
-				    key={y}	
-                    ref={(element: HTMLDivElement) => {
+					key={y}
+					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
 					}}
@@ -226,7 +232,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else if (componentType === 'isEnd') {
 			return (
 				<Grid
-				    key={y}	
+					key={y}
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -241,7 +247,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else if (componentType === 'isWall') {
 			return (
 				<Grid
-				    key={y}	
+					key={y}
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -255,7 +261,7 @@ export const Board: React.FC<BoardProps> = ({
 		} else
 			return (
 				<Grid
-				    key={y}	
+					key={y}
 					ref={(element: HTMLDivElement) => {
 						nodeRefs.current[x] = nodeRefs.current[x] || [];
 						nodeRefs.current[x][y] = element;
@@ -275,8 +281,8 @@ export const Board: React.FC<BoardProps> = ({
 			className='row-wrapper flex'
 			onMouseDown={() => updateMouseClick(true)}
 			onMouseUp={() => {
-				updateBoardWallState();
 				updateMouseClick(false);
+				updateBoardWallState();
 			}}
 			onMouseLeave={() => updateMouseClick(false)}
 			draggable='false'>
