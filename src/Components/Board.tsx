@@ -83,6 +83,7 @@ export const Board: React.FC<BoardProps> = ({
 				board[col][row].isVisited = false;
 			}
 		}
+		updateBoardWallState();
 	};
 
 	const updateBoardWallState = useCallback(() => {
@@ -133,40 +134,50 @@ export const Board: React.FC<BoardProps> = ({
 		[startPos, endPos, board]
 	);
 
-	const visualizeAlgo = (algoFunction: AlgoFunc, startNode: Node, endNode: Node) => {
-		const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
-		const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-		animatePath(visitedNodesInOrder, shortestPathOfNodes);
-	};
+	const visualizeAlgo = useCallback(
+		(algoFunction: AlgoFunc, startNode: Node, endNode: Node) => {
+			const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
+			const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
+			console.log('shortestPathOfNodes', shortestPathOfNodes);
+			animateTravelPath(visitedNodesInOrder, shortestPathOfNodes);
+		},
+		[board, startPos, endPos]
+	);
 
-	const animatePath = (visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
-		if (!visitedNodesInOrder) return console.log('error');
-		for (let step = 0; step <= visitedNodesInOrder.length; step++) {
-			if (step === visitedNodesInOrder.length) {
+	const animateTravelPath = useCallback(
+		(visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
+			if (!visitedNodesInOrder) return console.log('error');
+			for (let step = 0; step <= visitedNodesInOrder.length; step++) {
+				if (step === visitedNodesInOrder.length) {
+					setTimeout(() => {
+						animateShortestPath(nodesInShortestPathOrder);
+					}, step * 15);
+					return;
+				}
 				setTimeout(() => {
-					animateShortestPath(nodesInShortestPathOrder);
+					const { coordinate } = visitedNodesInOrder[step];
+					const [node_X, node_Y] = coordinate;
+					const nodeEle = nodeRefs.current[node_X][node_Y];
+					nodeEle.className = nodeEle.className.concat(' visited');
 				}, step * 15);
-				return;
 			}
-			setTimeout(() => {
-				const { coordinate } = visitedNodesInOrder[step];
-				const [node_X, node_Y] = coordinate;
-				const nodeEle = nodeRefs.current[node_X][node_Y];
-				nodeEle.className = nodeEle.className.concat(' visited');
-			}, step * 15);
-		}
-	};
+		},
+		[board, visualizeAlgo, startPos, endPos]
+	);
 
-	const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
-		for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
-			setTimeout(() => {
-				const { coordinate } = nodesInShortestPathOrder[step];
-				const [node_X, node_Y] = coordinate;
-				const nodeEle = nodeRefs.current[node_X][node_Y];
-				nodeEle.className = nodeEle.className.concat(' shortest-path');
-			}, 15 * step);
-		}
-	};
+	const animateShortestPath = useCallback(
+		(nodesInShortestPathOrder: Node[]) => {
+			for (let step = 0; step < nodesInShortestPathOrder.length; step++) {
+				setTimeout(() => {
+					const { coordinate } = nodesInShortestPathOrder[step];
+					const [node_X, node_Y] = coordinate;
+					const nodeEle = nodeRefs.current[node_X][node_Y];
+					nodeEle.className = nodeEle.className.concat(' shortest-path');
+				}, 15 * step);
+			}
+		},
+		[animateTravelPath, board, startPos, endPos]
+	);
 
 	const drawMaze = useCallback(() => {
 		const [startNodeX, startNodeY] = startPos;

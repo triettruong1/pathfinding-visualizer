@@ -7,44 +7,81 @@ import { Node, getUnvisitedNeighbors } from './Helpers';
 // Update FGH costs as you visit nodes only if it is a better path with lower F cost
 // End node has F cost = G cost
 
-const AStar = (grid: Node[][], startNode: Node, endNode: Node) => {
-	const visitedNodes: Node[] = [];
+const AStar = (grid: Node[][], startNode: Node, endNode: Node): Node[] => {
+	const visitedNodesInOrder: Node[] = [];
 	const openSet = new Map<Node, number>();
-	const closedSet = new Map<Node, number>();
-	//using distance property as G cost
+	const closedSet = new Set<Node>();
+
+	// Using distance property as G cost
 	startNode.distance = 0;
 	startNode.isVisited = true;
 	openSet.set(startNode, startNode.distance);
-	visitedNodes.push(startNode);
+
 	while (openSet.size !== 0) {
-		const sortedOpenSet = new Map([...openSet.entries()].sort((a, b) => a[1] - b[1])); //Sort and create a copy of openSet
-		const [currentSmallestFCostNode]: Iterable<Node> = sortedOpenSet.keys();
-        currentSmallestFCostNode.isVisited = true;
-		openSet.delete(currentSmallestFCostNode); //Remove node from openSet
-		if (currentSmallestFCostNode === endNode) return visitedNodes;
-		const neighbors: Node[] = getUnvisitedNeighbors(currentSmallestFCostNode, grid);
+		const [currentNode, currentFCost] = getLowestFCostNode(openSet);
+
+		if (currentNode === endNode) {
+			// Found the shortest path from startNode to endNode
+			return visitedNodesInOrder;
+		}
+
+		openSet.delete(currentNode);
+		closedSet.add(currentNode);
+
+		const neighbors: Node[] = getUnvisitedNeighbors(currentNode, grid);
+
 		for (let neighbor of neighbors) {
-			if (neighbor.isWall) continue;
-            neighbor.previousNode = currentSmallestFCostNode;
-            neighbor.distance = currentSmallestFCostNode.distance + 1;
-            neighbor.isVisited = true;
-			const HCost = manDistance(neighbor, endNode);
-			const neighborFCost = neighbor.distance + HCost;
-			if (openSet.has(neighbor) && openSet.get(neighbor)! < neighborFCost) continue;
-			else if (closedSet.has(neighbor) && closedSet.get(neighbor)! < neighborFCost) continue;
-			else {
-				openSet.set(neighbor, neighborFCost);
+			if (neighbor.isWall) {
+				continue;
+			}
+
+			if (closedSet.has(neighbor)) {
+				continue;
+			}
+
+			const tentativeGCost = currentNode.distance + 1;
+
+			if (!openSet.has(neighbor) || tentativeGCost < neighbor.distance) {
+				neighbor.previousNode = currentNode;
+				neighbor.distance = tentativeGCost;
+				neighbor.isVisited = true;
+
+				const hCost = euclideanDistance(neighbor, endNode);
+				const fCost = tentativeGCost + hCost;
+
+				openSet.set(neighbor, fCost);
 			}
 		}
-		visitedNodes.push(currentSmallestFCostNode);
-		closedSet.set(currentSmallestFCostNode, currentSmallestFCostNode.distance);
-	}
-	return visitedNodes;
-}
 
-const manDistance = (node: Node, destinationNode: Node) => {
+		visitedNodesInOrder.push(currentNode);
+	}
+
+	// There is no path from startNode to endNode
+	return visitedNodesInOrder;
+};
+
+const getLowestFCostNode = (openSet: Map<Node, number>): [Node, number] => {
+	let lowestFCost = Infinity;
+	let lowestFCostNode: Node | null = null;
+
+	for (let [node, fCost] of openSet) {
+		if (fCost < lowestFCost) {
+			lowestFCost = fCost;
+			lowestFCostNode = node;
+		}
+	}
+
+	if (lowestFCostNode === null) {
+		throw new Error('openSet should not be empty');
+	}
+
+	return [lowestFCostNode, lowestFCost];
+};
+
+const euclideanDistance = (node: Node, destinationNode: Node): number => {
 	const [endX, endY] = destinationNode.coordinate;
 	const [nodeX, nodeY] = node.coordinate;
-	return Math.abs(endX - nodeX) + Math.abs(endY - nodeY);
+	return Math.sqrt((endX - nodeX) ** 2 + (endY - nodeY) ** 2);
 };
+
 export default AStar;
