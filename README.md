@@ -11,5 +11,5 @@ Hi there, thanks for checking this out. This is a pathfinding visualizer that I 
 
 An algorithm for randomizing a maze is also implemented. (**My favorite feature**)
 
-- You can play around with the app [here]()
+- You can play around with the app [here](https://triettruong1.github.io/pathfinding-visualizer/)
 
