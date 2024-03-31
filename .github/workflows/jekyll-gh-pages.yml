@@ -1,11 +1,9 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: Vite Github Pages Deploy
 
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master"]
-
+    branches: ["master", "main"]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -15,37 +13,21 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout/
-        uses: actions/checkout@v4
-      - name: Vite Github Pages Deployer
-        uses: skywarth/vite-github-pages-deployer@v1.2.0
-        id: deploy_to_pages
-        with:
-          public_base_path: /pathfinding-visualizer/
-          install_phase_node_env: 16
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-
-  # Deployment job
-  deploy:
     environment:
       name: demo
       url: ${{ steps.deploy_to_pages.outputs.github_pages_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Vite Github Pages Deployer
+        uses: skywarth/vite-github-pages-deployer@master
+        id: deploy_to_pages
+
