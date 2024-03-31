@@ -26,7 +26,7 @@ jobs:
         uses: skywarth/vite-github-pages-deployer@v1.2.0
         id: deploy_to_pages
         with:
-          public_base_path: pathfinding-visualizer/
+          public_base_path: /pathfinding-visualizer/
           install_phase_node_env: 16
       - name: Setup Pages
         uses: actions/configure-pages@v5
