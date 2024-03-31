@@ -68,7 +68,6 @@ export const Board: React.FC<BoardProps> = ({
 			}
 		}
 		setBoard(populateBoard());
-		updateBoardWallState();
 	}, [nodeRefs.current, board]);
 
 	const resetPath = () => {
@@ -81,9 +80,9 @@ export const Board: React.FC<BoardProps> = ({
 				if (node.classList.contains('shortest-path'))
 					node.classList.remove('shortest-path');
 				board[col][row].isVisited = false;
+				board[col][row].previousNode = null;
 			}
 		}
-		updateBoardWallState();
 	};
 
 	const updateBoardWallState = useCallback(() => {
@@ -91,18 +90,15 @@ export const Board: React.FC<BoardProps> = ({
 			for (let row = 0; row < BOARD_ROW_NUM; row++) {
 				nodeRefs.current[col][row].className.includes('wall')
 					? (board[col][row].isWall = true)
-					: ' ';
+					: null;
 			}
 		}
 	}, [board, endPos, startPos, nodeRefs.current]);
 
-	useEffect(() => {
-		setBoard(populateBoard());
-	}, []);
-
 	const handleChangeStartPos = useCallback((coordinate: [number, number]) => {
 		setStartPos(coordinate);
 	}, []);
+
 	const handleChangeEndPos = useCallback((coordinate: [number, number]) => {
 		setEndPos(coordinate);
 	}, []);
@@ -138,7 +134,6 @@ export const Board: React.FC<BoardProps> = ({
 		(algoFunction: AlgoFunc, startNode: Node, endNode: Node) => {
 			const visitedNodesInOrder: Node[] = algoFunction(board, startNode, endNode);
 			const shortestPathOfNodes: Node[] = getNodesInShortestPathOrder(endNode);
-			console.log('shortestPathOfNodes', shortestPathOfNodes);
 			animateTravelPath(visitedNodesInOrder, shortestPathOfNodes);
 		},
 		[board, startPos, endPos]
@@ -146,7 +141,7 @@ export const Board: React.FC<BoardProps> = ({
 
 	const animateTravelPath = useCallback(
 		(visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
-			if (!visitedNodesInOrder) return console.log('error');
+			if (!visitedNodesInOrder) return;
 			for (let step = 0; step <= visitedNodesInOrder.length; step++) {
 				if (step === visitedNodesInOrder.length) {
 					setTimeout(() => {
@@ -204,15 +199,9 @@ export const Board: React.FC<BoardProps> = ({
 				nodeRefs.current[nodeX][nodeY].classList.remove('wall');
 			}, step++ * 2);
 		}
-	}, [board, nodeRefs]);
+	}, [board, nodeRefs, startPos]);
 
-	animateReceiverCreator(startAlgo);
-	resetReceiverCreator(resetBoard);
-	resetPathReceiverCreator(resetPath);
-	generateMazeReceiverCreator(drawMaze);
-
-	// const instantGeneratePath = () => {};
-
+	//There has to be a better way of doing this
 	const isType = (x: number, y: number) => {
 		const [START_X, START_Y] = startPos;
 		const [END_X, END_Y] = endPos;
@@ -286,6 +275,29 @@ export const Board: React.FC<BoardProps> = ({
 				/>
 			);
 	};
+
+	useEffect(() => {
+		setBoard(populateBoard());
+	}, []);
+
+	// useEffect(() => {
+	// 	updateBoardWallState();
+	// }, [board, updateBoardWallState]);
+
+	useEffect(() => {
+		animateReceiverCreator(startAlgo);
+		resetReceiverCreator(resetBoard);
+		resetPathReceiverCreator(resetPath);
+		generateMazeReceiverCreator(drawMaze);
+	}, [
+		animateReceiverCreator,
+		startAlgo,
+		resetReceiverCreator,
+		resetPathReceiverCreator,
+		generateMazeReceiverCreator,
+		drawMaze,
+	]);
+	// const instantGeneratePath = () => {};
 
 	return (
 		<div
